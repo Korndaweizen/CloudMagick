@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25123.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudMagick_Client_Gui", "CloudMagick_Client_Gui\CloudMagick_Client_Gui.csproj", "{D88AF9A7-40C8-4BD5-A565-B5BCB55E1C0D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudMagick_MasterServer", "CloudMagick_MasterServer\CloudMagick_MasterServer.csproj", "{CC12E660-575D-419D-9A45-3195318DF26E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudMagick_WorkerServer", "CloudMagick_WorkerServer\CloudMagick_WorkerServer.csproj", "{4ADADBD3-26B1-4742-A669-A0FCDBE4D541}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D88AF9A7-40C8-4BD5-A565-B5BCB55E1C0D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D88AF9A7-40C8-4BD5-A565-B5BCB55E1C0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D88AF9A7-40C8-4BD5-A565-B5BCB55E1C0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D88AF9A7-40C8-4BD5-A565-B5BCB55E1C0D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC12E660-575D-419D-9A45-3195318DF26E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC12E660-575D-419D-9A45-3195318DF26E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC12E660-575D-419D-9A45-3195318DF26E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC12E660-575D-419D-9A45-3195318DF26E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4ADADBD3-26B1-4742-A669-A0FCDBE4D541}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4ADADBD3-26B1-4742-A669-A0FCDBE4D541}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4ADADBD3-26B1-4742-A669-A0FCDBE4D541}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4ADADBD3-26B1-4742-A669-A0FCDBE4D541}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
