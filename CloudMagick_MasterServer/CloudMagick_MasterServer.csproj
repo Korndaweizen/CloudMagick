@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="Clients\ClientUser.cs" />
     <Compile Include="Clients\ClientWorker.cs" />
+    <Compile Include="Clients\Command.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WebSocketBehaviors\BehaviorUser.cs" />

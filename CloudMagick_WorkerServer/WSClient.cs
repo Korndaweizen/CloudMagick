@@ -3,7 +3,7 @@
 using System.IO;
 using System.Linq;
 using System.Net;
-
+using CloudMagick_WorkerServer.JSONstuff;
 using WebSocketSharp;
 
 namespace CloudMagick_WorkerServer
@@ -11,14 +11,24 @@ namespace CloudMagick_WorkerServer
     class WSClient
     {
         private ClientWorker _worker = new ClientWorker();
+        private WebSocket ws;
 
-        private WebSocket ws= new WebSocket("ws://127.0.0.1:1150/Worker");
+        private static Random random = new Random();
+
+        public WSClient(string ip, string port)
+        {
+            string connectTo = "ws://" + ip + ":" + port + "/Worker";
+            ws = new WebSocket(connectTo);
+        }
+
         public void start()
         {
             var localip = GetLocalIpAddress();
             _worker.IpAddress = localip+":1151";
             _worker.Secret = RandomString(15);
-            _worker.Functionality = File.ReadAllLines("functionality.txt").ToList();
+            var funclist = File.ReadAllLines("functionality.txt").ToList();
+            _worker.Functionality = funclist.Select(x => (Command)Enum.Parse(typeof(Command), x))
+          .ToList();
             Console.WriteLine("IP Address {0}: {1} ", 1, localip);
 
             ws.EmitOnPing = true;
@@ -82,7 +92,6 @@ namespace CloudMagick_WorkerServer
         }
 
 
-        private static Random random = new Random();
         public static string RandomString(int length)
         {
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";

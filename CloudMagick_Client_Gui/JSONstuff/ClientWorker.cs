@@ -6,7 +6,7 @@ namespace CloudMagick_Client_Gui.JSONstuff
     {
         public string ID { get; set; }
         public string IpAddress { get; set; }
-        public List<string> Functionality { get; set; }
+        public List<Command> Functionality { get; set; }
         public string Secret { get; set; }
 
         public override string ToString()

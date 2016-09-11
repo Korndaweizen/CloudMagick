@@ -10,6 +10,7 @@ using System.Linq;
 using System.Net.NetworkInformation;
 using CloudMagick_Client_Gui.JSONstuff;
 using CloudMagick_Client_Gui.WebSocketClients;
+using GraphicsMagick;
 
 namespace CloudMagick_Client_Gui
 {
@@ -18,18 +19,20 @@ namespace CloudMagick_Client_Gui
         public static WorkerWSClient _workerWsClient;
         private Thread _serverSelectionThread;
         public static List<ClientWorker> ActiveWorkers = new List<ClientWorker>();
-        private static List<CommandButton> _commandButtons = new List<CommandButton>();
+        private static List<Button> _commandButtons = new List<Button>();
         public static MasterWsClient MasterWs;
         public RedoUndo RedoUndo;
 
 
         public Form1(string ipport)
         {
-            MasterWs = new MasterWsClient(ipport);
+            MasterWs = new MasterWsClient(ipport,this);
             MasterWs.Start();
             InitializeComponent();
             RedoUndo = new RedoUndo(pictureBox1);
-
+            InitDisableCommandBtns();
+            _commandButtons.Add(selimage);
+            _commandButtons.Add(clearimage);
         }
 
         //
@@ -51,19 +54,56 @@ namespace CloudMagick_Client_Gui
             _commandButtons.Add(btn);
         }
 
-        public static void DisableBtns()
+        private void InitDisableCommandBtns()
         {
             foreach (var btn in _commandButtons)
             {
-                btn.Enabled = false;
+                if (btn.GetType() == typeof(CommandButton))
+                {
+                    btn.Enabled = false;
+                }
             }
         }
-        public static void EnableBtns()
+        public void DisableCommandBtns()
         {
-            foreach (var btn in _commandButtons)
+            MethodInvoker mi = delegate () {
+                foreach (var btn in _commandButtons)
+                {
+                    if (btn.GetType() == typeof(CommandButton))
+                    {
+                        btn.Enabled = false;
+                    }
+                }
+            };
+            this.Invoke(mi);
+        }
+
+        public void DisableBtns()
+        {
+            MethodInvoker mi = delegate () {
+                foreach (var btn in _commandButtons)
+                {
+                    btn.Enabled = false;
+                }
+            };
+            this.Invoke(mi);
+        }
+
+        public void EnableBtns()
+        {
+            MethodInvoker mi = delegate()
             {
-                btn.Enabled = true;
-            }
+                if (_workerWsClient.WebSocket.IsAlive & RedoUndo.GetCurrentImage()!=null)
+                {
+                    foreach (var btn in _commandButtons)
+                    {
+                        btn.Enabled = true;
+                    }
+                }
+                
+            };
+            this.Invoke(mi);
+
         }
 
         private void DoThisAllTheTime()
@@ -71,16 +111,11 @@ namespace CloudMagick_Client_Gui
             while (true)
             {
                 SelectBestServerPing();
-
-                //you need to use Invoke because the new thread can't access the UI elements directly
-                MethodInvoker mi = delegate () { this.Text = DateTime.Now.ToString(); };
-                this.Invoke(mi);
-                Console.WriteLine(Text);
                 Thread.Sleep(30000);
             }
         }
 
-        public static void SelectBestServerPing()
+        public void SelectBestServerPing()
         {
             Dictionary<long, string> workerDictionary = new Dictionary<long, string>();
             foreach (var worker in ActiveWorkers)
@@ -103,15 +138,15 @@ namespace CloudMagick_Client_Gui
                 var workerPair = workerDictionary.First();
                 if (_workerWsClient == null)
                 {
-                    _workerWsClient = new WorkerWSClient(workerPair.Value);
+                    _workerWsClient = new WorkerWSClient(workerPair.Value, this);
                     _workerWsClient.start();
                 }
                 else
                 {
-                    if (!_workerWsClient.IPport.Equals(workerPair.Value))
+                    if (!_workerWsClient.IPport.Equals(workerPair.Value) || !_workerWsClient.WebSocket.IsAlive)
                     {
                         _workerWsClient.Close();
-                        _workerWsClient = new WorkerWSClient(workerPair.Value);
+                        _workerWsClient = new WorkerWSClient(workerPair.Value, this);
                         _workerWsClient.start();
                     }
                 }
@@ -125,17 +160,19 @@ namespace CloudMagick_Client_Gui
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
                 //pictureBox1.Load(openFileDialog1.FileName);
-                Image newImage = Image.FromFile(openFileDialog1.FileName);
-                RedoUndo.AddImage(newImage);
+                MagickImage mgkImage=new MagickImage(openFileDialog1.FileName);
+                RedoUndo.AddImage(mgkImage);
+                _workerWsClient.send(new UserCommand{cmd=Command.None,Image = mgkImage.ToBase64()});
             }
-            this.Cursor = Cursors.WaitCursor;
+            //this.Cursor = Cursors.WaitCursor;
         }
 
         private void clearimage_Click(object sender, EventArgs e)
         {
             pictureBox1.Image = null;
             RedoUndo.AddImage(null);
-            this.Cursor = Cursors.WaitCursor;
+            DisableCommandBtns();
+            //this.Cursor = Cursors.WaitCursor;
 
         }
 
@@ -163,16 +200,27 @@ namespace CloudMagick_Client_Gui
         private void undoToolStripMenuItem_Click(object sender, EventArgs e)
         {
             RedoUndo.Undo();
+            if (pictureBox1.Image == null)
+            {
+                DisableCommandBtns();
+            }
+            else
+            {
+                EnableBtns();
+            }
         }
 
         private void redoToolStripMenuItem_Click(object sender, EventArgs e)
         {
             RedoUndo.Redo();
-        }
-
-        private void progressBar1_Click(object sender, EventArgs e)
-        {
-
+            if (pictureBox1.Image == null)
+            {
+                DisableCommandBtns();
+            }
+            else
+            {
+                EnableBtns();
+            }
         }
     }
 }

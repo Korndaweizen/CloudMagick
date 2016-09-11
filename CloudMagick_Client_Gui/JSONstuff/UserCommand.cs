@@ -4,7 +4,7 @@ namespace CloudMagick_Client_Gui.JSONstuff
 {
     public class UserCommand
     {
-        public Image Image { get; set; }
+        public string Image { get; set; }
         public Command cmd { get; set; }
         public override string ToString()
         {
@@ -15,9 +15,15 @@ namespace CloudMagick_Client_Gui.JSONstuff
     public enum Command
     {
         Blur,
-        Sharpen
+        Sharpen,
+        Charcoal,
+        Sketch,
+        Oilpaint,
+        Negate,
+        Sepia,
+        None
     }
 
-    
+
 
 }

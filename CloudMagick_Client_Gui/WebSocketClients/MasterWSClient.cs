@@ -12,10 +12,12 @@ namespace CloudMagick_Client_Gui.WebSocketClients
     {
         private static ClientUser _user = new ClientUser();
         public WebSocket WebSocket;
+        private Form1 _form1;
 
 
-        public MasterWsClient(string ipport)
+        public MasterWsClient(string ipport, Form1 form1)
         {
+            _form1 = form1;
             WebSocket = new WebSocket("ws://"+ipport+"/User");
         }
 
@@ -48,7 +50,7 @@ namespace CloudMagick_Client_Gui.WebSocketClients
                     }
                     Console.WriteLine();
 
-                    Form1.SelectBestServerPing();
+                    _form1.SelectBestServerPing();
 
                     return;
                 }

@@ -1,8 +1,12 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using CloudMagick_WorkerServer.JSONstuff;
+using GraphicsMagick;
 using WebSocketSharp;
 using WebSocketSharp.Server;
 
@@ -10,6 +14,7 @@ namespace CloudMagick_WorkerServer.WebSocketBehaviors
 {
     class BehaviorUser : WebSocketBehavior
     {
+        private ConcurrentDictionary<string,MagickImage> imgDictionary = new ConcurrentDictionary<string, MagickImage>();
         private ClientUser getCurrentUser()
         {
             ClientUser tmpuser = new ClientUser();
@@ -18,25 +23,49 @@ namespace CloudMagick_WorkerServer.WebSocketBehaviors
         }
         protected override void OnMessage(MessageEventArgs e)
         {
+            var stopwatch = Stopwatch.StartNew();
+            var date = DateTime.Now.Millisecond;
             if (e.IsText)
             {
-                Console.WriteLine( @"Client {0} sent: {1}",ID,e.Data);
+                Console.WriteLine( @"Client {0} sent: ",ID);
                 if (e.Data.StartsWith("COMMAND"))
                 {
                     var json = e.Data.Split(new[] { ':' }, 2).Last();
                     var command = Newtonsoft.Json.JsonConvert.DeserializeObject<UserCommand>(json);
-
-                    if (command.Image.Equals(null))
+                    ClientUser tmpuser = getCurrentUser();
+                    string imagepath = "images/" + tmpuser.Secret + ".png";
+                    if (command.Image == null)
                     {
-                        ClientUser tmpuser = getCurrentUser();
-                        string imagepath = "images/" + tmpuser.Secret + ".png";
-                        if (File.Exists(imagepath))
+                        Console.WriteLine("Command No Image");
+                        if (imgDictionary.ContainsKey(tmpuser.Secret))
                         {
-                            command.Image = Image.FromFile(imagepath);
-                            command.Execute();
-                            command.Image.Save("images/" + tmpuser.Secret + ".png");
-                            Send("RESULT:" + Newtonsoft.Json.JsonConvert.SerializeObject(command));
+                            MagickImage image;
+                            imgDictionary.TryGetValue(tmpuser.Secret, out image);
+                            command.Execute(image);
+                            var time2 = stopwatch.ElapsedMilliseconds;
+                            //var date2 = DateTime.Now.Millisecond;
+                            //Console.WriteLine(@"Command: {0} took {1}ms to execute", command.cmd, time2);
+                            var bytes = image.ToByteArray();
+                            var time3 = stopwatch.ElapsedMilliseconds;
+                            Send(bytes);
+                            //Send("RESULT:" + Newtonsoft.Json.JsonConvert.SerializeObject(command));
+                            var time4 = stopwatch.ElapsedMilliseconds;
+                            //var date3 = DateTime.Now.Millisecond;
+                            Console.WriteLine(@"Conversion to bytes took {0}ms", time3 - time2);
+                            Console.WriteLine(@"Sending took {0}ms", time4 - time3);
+                            Console.WriteLine(@"Process: {0} took {1}ms overall", command.cmd, stopwatch.ElapsedMilliseconds);
+                            stopwatch.Stop();
+                            imgDictionary.AddOrUpdate(tmpuser.Secret, image, (key, oldvalue) => image);
                         }
+                        /*if (File.Exists(imagepath))
+                        {
+                            using (MagickImage image = new MagickImage(imagepath))
+                            {
+                                command.Execute(image);
+                                Send("RESULT:" + Newtonsoft.Json.JsonConvert.SerializeObject(command));
+                                image.Write(imagepath);
+                            }
+                        }*/
                         else
                         {
                             Send("RESEND:" + Newtonsoft.Json.JsonConvert.SerializeObject(command));
@@ -44,23 +73,50 @@ namespace CloudMagick_WorkerServer.WebSocketBehaviors
                     }
                     else
                     {
-                        ClientUser tmpuser = getCurrentUser();
-                        command.Execute();
-                        command.Image.Save("images/" + tmpuser.Secret + ".png");
-                        Send("RESULT:" + Newtonsoft.Json.JsonConvert.SerializeObject(command));
+                        Console.WriteLine(@"Command {0} with Image",command.cmd);
+                        using (MagickImage image = MagickImage.FromBase64(command.Image))
+                        {
+                            image.Write(imagepath);
+                        }
+                        MagickImage img = new MagickImage(imagepath);
+                        if (command.cmd==Command.None)
+                        {
+                            command.Image = null;
+                            Send("RESULT:" + Newtonsoft.Json.JsonConvert.SerializeObject(command));
+                        }
+                        else
+                        {
+                            command.Execute(img);
+                            var time2 = stopwatch.ElapsedMilliseconds;
+                            //var date2 = DateTime.Now.Millisecond;
+                            //Console.WriteLine(@"Command: {0} took {1}ms to execute", command.cmd, time2);
+                            var bytes = img.ToByteArray();
+                            var time3 = stopwatch.ElapsedMilliseconds;
+                            Send(bytes);
+                            //Send("RESULT:" + Newtonsoft.Json.JsonConvert.SerializeObject(command));
+                            var time4 = stopwatch.ElapsedMilliseconds;
+                            //var date3 = DateTime.Now.Millisecond;
+                            Console.WriteLine(@"Conversion to bytes took {0}ms", time3 - time2);
+                            Console.WriteLine(@"Sending took {0}ms", time4 - time3);
+                            Console.WriteLine(@"Process: {0} took {1}ms overall", command.cmd, stopwatch.ElapsedMilliseconds);
+                        }
+                        imgDictionary.AddOrUpdate(tmpuser.Secret, img, (key, oldvalue) => img);
+                        File.Delete(imagepath);
+                        stopwatch.Stop();
+
                     }
 
-                    
+
                 }
                 else if(e.Data.StartsWith("REGISTER"))
                 {
+                    Console.WriteLine("Registration");
                     var json = e.Data.Split(new[] { ':' }, 2).Last();
                     var user = Newtonsoft.Json.JsonConvert.DeserializeObject<ClientUser>(json);
                     user.ID = ID;
                     Program.ActiveUsers.AddOrUpdate(ID, user, (key, oldvalue) => user);
                     Send("Registered Successfully!");
                 }
-                Send(e.Data);
             }
             
         }

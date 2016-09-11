@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 using System.Net;
 using CloudMagick_Client_Gui.JSONstuff;
+using GraphicsMagick;
 using WebSocketSharp;
 
 namespace CloudMagick_Client_Gui.WebSocketClients
@@ -11,9 +15,11 @@ namespace CloudMagick_Client_Gui.WebSocketClients
         private static ClientUser _user = new ClientUser();
         public WebSocket WebSocket;
         public string IPport;
+        private Form1 _form1;
 
-        public WorkerWSClient(string ipport)
+        public WorkerWSClient(string ipport, Form1 form1)
         {
+            _form1 = form1;
             IPport = ipport;
             WebSocket = new WebSocket("ws://" + ipport + "/User");
         }
@@ -31,7 +37,8 @@ namespace CloudMagick_Client_Gui.WebSocketClients
             WebSocket.OnOpen += (sender, eventArgs) =>
             {
                 var json = Newtonsoft.Json.JsonConvert.SerializeObject(_user);
-                WebSocket.Send(json);
+                WebSocket.Send("REGISTER:"+json);
+                _form1.EnableBtns();
             };
 
             WebSocket.OnMessage += (sender, e) =>
@@ -39,24 +46,42 @@ namespace CloudMagick_Client_Gui.WebSocketClients
                 if (e.IsText)
                 {
                     // Do something with e.Data.
-                    Console.WriteLine("Server sends: " + e.Data);
+                    Console.WriteLine("Server sends: ");
                     if (e.Data.StartsWith("RESULT"))
                     {
-                        var json = e.Data.Split(new[] { ':' }, 2).Last();
+                        Console.WriteLine("RESULT");
+                        var json = e.Data.Split(new[] {':'}, 2).Last();
                         UserCommand usrcmd = Newtonsoft.Json.JsonConvert.DeserializeObject<UserCommand>(json);
-                        RedoUndo.AddImage(usrcmd.Image);
+                        if (usrcmd.cmd!=Command.None)
+                        {
+                            MagickImage image = MagickImage.FromBase64(usrcmd.Image);
+                            RedoUndo.AddImage(image);
+                        }
+                        _form1.EnableBtns();
                     }
                     if (e.Data.StartsWith("RESEND"))
                     {
+                        Console.WriteLine("RESEND");
                         var json = e.Data.Split(new[] { ':' }, 2).Last();
+                        UserCommand usrcmd = Newtonsoft.Json.JsonConvert.DeserializeObject<UserCommand>(json);
+
+                        using (MagickImage image = new MagickImage(RedoUndo.GetCurrentImage()))
+                        {
+                            usrcmd.Image = image.ToBase64();
+                        }
+                        
+
+                        send(usrcmd);
                     }
                     return;
                 }
-
                 if (e.IsBinary)
                 {
+                    MagickImage image = new MagickImage(e.RawData);
+                    RedoUndo.AddImage(image);
+                    _form1.EnableBtns();
                     // Do something with e.RawData.
-                    Console.WriteLine("Server sends: UNREADABLESHIT");
+                    Console.WriteLine("Server sends: BINARY");
                     return;
                 }
 
@@ -67,6 +92,11 @@ namespace CloudMagick_Client_Gui.WebSocketClients
                     Console.WriteLine("Ping Received" + e.Data + " " + ret);
                     return;
                 }
+            };
+
+            WebSocket.OnClose += (sender, eventArgs) =>
+            {
+                _form1.DisableBtns();
             };
 
             WebSocket.Connect();
@@ -87,7 +117,23 @@ namespace CloudMagick_Client_Gui.WebSocketClients
 
         public void send(UserCommand cmd)
         {
+            string tmp = "IMAGE";
+            
+            if (cmd.Image == null)
+            {
+                
+                if (!RedoUndo.IsPointerAtNewest())
+                {
+                    cmd.Image = RedoUndo.GetCurrentImage().ToBase64();
+                }
+                else
+                {
+                    tmp = "NULL";
+                }
+            }
+            Console.WriteLine("Sending COMMAND: " + tmp +", " + cmd.cmd.ToString() );
             WebSocket.Send("COMMAND:"+Newtonsoft.Json.JsonConvert.SerializeObject(cmd));
+            _form1.DisableBtns();
         }
         public static string GetLocalIpAddress()
         {
