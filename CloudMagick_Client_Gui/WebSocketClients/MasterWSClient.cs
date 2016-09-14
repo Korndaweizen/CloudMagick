@@ -14,12 +14,12 @@ namespace CloudMagick_Client_Gui.WebSocketClients
     {
         private static ClientUser _user = new ClientUser();
         public WebSocket WebSocket;
-        private Form1 _form1;
+        private IUserClient _clientForm;
 
 
-        public MasterWsClient(string ipport, Form1 form1)
+        public MasterWsClient(string ipport, IUserClient clientForm)
         {
-            _form1 = form1;
+            _clientForm = clientForm;
             WebSocket = new WebSocket("ws://"+ipport+"/User");
         }
 
@@ -44,17 +44,17 @@ namespace CloudMagick_Client_Gui.WebSocketClients
                 {
                     // Do something with e.Data.
                     //Console.WriteLine("Server sends: " + e.Data);
-                    Form1.ActiveWorkers = Newtonsoft.Json.JsonConvert.DeserializeObject<List<ClientWorker>>(e.Data);
+                    _clientForm.ActiveWorkers = Newtonsoft.Json.JsonConvert.DeserializeObject<List<ClientWorker>>(e.Data);
                     LogTo.Info("[MASTER] Available workers:");
                     //Console.WriteLine("\nAvailable Workers:");
-                    foreach (var activeWorker in Form1.ActiveWorkers)
+                    foreach (var activeWorker in _clientForm.ActiveWorkers)
                     {
                         LogTo.Info("[MASTER] " + activeWorker.ToString());
                         //Console.WriteLine(activeWorker.ToString());
                     }
                     Console.WriteLine();
 
-                    _form1.ServerSelector.SelectBestServerPing();
+                    _clientForm.ServerSelector.SelectBestServerPing();
 
                     return;
                 }

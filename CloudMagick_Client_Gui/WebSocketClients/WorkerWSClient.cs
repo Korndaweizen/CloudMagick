@@ -17,17 +17,18 @@ namespace CloudMagick_Client_Gui.WebSocketClients
         private static ClientUser _user = new ClientUser();
         public WebSocket WebSocket;
         public string IPport;
-        private readonly Form1 _form1;
+        private readonly IUserClient _clientForm;
         private Stopwatch _stopper;
+        private int _sendingTime;
 
-        public WorkerWsClient(string ipport, Form1 form1)
+        public WorkerWsClient(string ipport, IUserClient clientForm)
         {
-            _form1 = form1;
+            _clientForm = clientForm;
             IPport = ipport;
             WebSocket = new WebSocket("ws://" + ipport + "/User");
         }
 
-        public void start()
+        public void Start()
         {
             _stopper = new Stopwatch();
             var localip = Utility.GetLocalIpAddress();
@@ -42,28 +43,13 @@ namespace CloudMagick_Client_Gui.WebSocketClients
             {
                 var json = Newtonsoft.Json.JsonConvert.SerializeObject(_user);
                 WebSocket.Send("REGISTER:"+json);
-                _form1.EnableBtns();
+                _clientForm.EnableSending();
             };
 
             WebSocket.OnMessage += (sender, e) =>
             {
                 if (e.IsText)
                 {
-                    // Do something with e.Data.
-                    //LogTo.Info("[WORKER] Workerserver sends: ");
-                    if (e.Data.StartsWith("RESULT"))
-                    {
-                        //LogTo.Info("RESULT");
-                        var json = e.Data.Split(new[] {':'}, 2).Last();
-                        UserCommand usrcmd = Newtonsoft.Json.JsonConvert.DeserializeObject<UserCommand>(json);
-                        if (usrcmd.cmd!=Command.None)
-                        {
-                            Image image = Utility.ImageFromBase64(usrcmd.Image);
-                            RedoUndo.AddImage(image);
-                            LogTo.Info("[WORKER] Image received");
-                        }
-                        _form1.EnableBtns();
-                    }
                     if (e.Data.StartsWith("RESEND"))
                     {
                         LogTo.Info("[WORKER] Image must be resent");
@@ -71,15 +57,17 @@ namespace CloudMagick_Client_Gui.WebSocketClients
                         UserCommand usrcmd = Newtonsoft.Json.JsonConvert.DeserializeObject<UserCommand>(json);
 
                         usrcmd.Image = Utility.ImageToBase64(RedoUndo.GetCurrentImage());
-                        send(usrcmd);
+                        Send(usrcmd);
                     }
                     if (e.Data.StartsWith("TIME"))
                     {
                         var json = e.Data.Split(new[] { ':' }, 2).Last();
                         var result = Newtonsoft.Json.JsonConvert.DeserializeObject<Result>(json);
-                        LogTo.Info("[WORKER] Executiontime " + result.ExecutionTime +"ms");
-                        LogTo.Info("[WORKER] Conversiontime " + result.ConversionTime + "ms");
-                        LogTo.Info("[WORKER] Sendingtime " + result.SendingTime + "ms");
+                        var combineConversionSending = result.ConversionTime + result.SendingTime;
+                        var completeTime = unchecked((int)_stopper.ElapsedMilliseconds);
+                        _stopper.Reset();
+                        _clientForm.EnableSending();
+                        LogTo.Info("[WORKER] [IMGSIZE] "+result.ImgSize+" [COMMAND] "+result.Cmd+" [COMPLETE] "+completeTime+"ms [ULTIME] "+_sendingTime+"ms [EXECTIME] " + result.ExecutionTime +"ms [DLTIME] " + combineConversionSending + "ms");
                     }
                     return;
                 }
@@ -87,12 +75,11 @@ namespace CloudMagick_Client_Gui.WebSocketClients
                 {
                     Image image = Utility.ImageFromByte(e.RawData);
                     RedoUndo.AddImage(image);
-                    _form1.EnableBtns();
                     // Do something with e.RawData.
-                    var time = unchecked ((int) _stopper.ElapsedMilliseconds);
-                    _stopper.Reset();
-                    LogTo.Info("[WORKER] Processing complete");
-                    LogTo.Info("[CLIENT] Processing took "+time+ "ms");
+                    //var time = unchecked ((int) _stopper.ElapsedMilliseconds);
+                    _stopper.Stop();
+                    //LogTo.Info("[WORKER] Processing complete");
+                    //LogTo.Info("[CLIENT] Processing took "+time+ "ms");
                     return;
                 }
 
@@ -107,7 +94,7 @@ namespace CloudMagick_Client_Gui.WebSocketClients
 
             WebSocket.OnClose += (sender, eventArgs) =>
             {
-                _form1.DisableBtns(servermaychange:true);
+                _clientForm.DisableSending(servermaychange:true);
             };
 
             WebSocket.Connect();
@@ -121,12 +108,12 @@ namespace CloudMagick_Client_Gui.WebSocketClients
             WebSocket.Close();
         }
 
-        public void send(string msg)
-        {
-            WebSocket.Send(msg);
-        }
+        //public void Send(string msg)
+        //{
+        //    WebSocket.Send(msg);
+        //}
 
-        public void send(UserCommand userCommand)
+        public void Send(UserCommand userCommand)
         {
             string tmp = "IMAGE";
             
@@ -144,11 +131,13 @@ namespace CloudMagick_Client_Gui.WebSocketClients
             }
             if (!userCommand.cmd.Equals(Command.None))
             {
-                _stopper.Start();
+                //_stopper.Start();
             }
+            _stopper.Start();
             LogTo.Info("[CLIENT] Sending COMMAND: " + tmp +", " + userCommand.cmd );
             WebSocket.Send("COMMAND:"+Newtonsoft.Json.JsonConvert.SerializeObject(userCommand));
-            _form1.DisableBtns(servermaychange: false);
+            _sendingTime = unchecked ((int) _stopper.ElapsedMilliseconds);
+            _clientForm.DisableSending(servermaychange: false);
         }
     }
 }

@@ -11,6 +11,8 @@ namespace CloudMagick_WorkerServer.JSONstuff
         public int ExecutionTime { get; set; }
         public int ConversionTime { get; set; }
         public int SendingTime { get; set; }
+        public Command Cmd { get; set; }
+        public int ImgSize { get; set; }
 
         public override string ToString()
         {

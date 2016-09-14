@@ -10,26 +10,22 @@ using CloudMagick_Client_Gui.WebSocketClients;
 
 namespace CloudMagick_Client_Gui.GUI
 {
-    public partial class Form1 : Form
+    public partial class ClientForm : Form,IUserClient
     {
-        public static WorkerWsClient WorkerWsClient;
         private Thread _serverSelectionThread;
-        public static List<ClientWorker> ActiveWorkers = new List<ClientWorker>();
         private static readonly List<Button> CommandButtons = new List<Button>();
-        public static MasterWsClient MasterWs;
         public RedoUndo RedoUndo;
-        public readonly ServerSelector ServerSelector;
-        public bool Servermaychange = true;
-        public List<Command> FunctionList=new List<Command>();
+        public ServerSelector ServerSelector { get; set; }
+        public bool ServerMayChange { get; set; }= true;
 
 
-        public Form1(string ipport)
+        public ClientForm(string ipport)
         {
             MasterWs = new MasterWsClient(ipport,this);
             MasterWs.Start();
             InitializeComponent();
             RedoUndo = new RedoUndo(pictureBox1);
-            InitDisableCommandBtns();
+            InitDisableCommands();
             CommandButtons.Add(selimage);
             CommandButtons.Add(clearimage);
             ServerSelector = new ServerSelector(this);
@@ -49,12 +45,12 @@ namespace CloudMagick_Client_Gui.GUI
             _serverSelectionThread.Start();
         }
 
-        public static void RegisterCommandButton(CommandButton btn)
+        public void RegisterCommandButton(CommandButton btn)
         {
             CommandButtons.Add(btn);
         }
 
-        private void InitDisableCommandBtns()
+        public void InitDisableCommands()
         {
             foreach (var btn in CommandButtons)
             {
@@ -64,7 +60,15 @@ namespace CloudMagick_Client_Gui.GUI
                 }
             }
         }
-        public void DisableCommandBtns()
+
+        public MasterWsClient MasterWs { get; set; }
+
+        public List<ClientWorker> ActiveWorkers { get; set; } = new List<ClientWorker>();
+
+        public WorkerWsClient WorkerWsClient { get; set; }
+        public List<Command> FunctionList { get; set; } = new List<Command>();
+
+        public void DisableCommands()
         {
             MethodInvoker mi = delegate()
             {
@@ -79,7 +83,7 @@ namespace CloudMagick_Client_Gui.GUI
             this.Invoke(mi);
         }
 
-        public void DisableBtns(bool servermaychange)
+        public void DisableSending(bool servermaychange)
         {
             MethodInvoker mi = delegate () {
                 foreach (var btn in CommandButtons)
@@ -89,13 +93,13 @@ namespace CloudMagick_Client_Gui.GUI
             };
             if (!servermaychange)
             {
-                Servermaychange = false;
+                ServerMayChange = false;
             }
             this.Invoke(mi);
         }
 
 
-        public void EnableBtns()
+        public void EnableSending()
         {
             MethodInvoker mi = delegate()
             {
@@ -105,14 +109,14 @@ namespace CloudMagick_Client_Gui.GUI
                         cmd =>
                             cmd.GetType() != typeof(CommandButton) ||
                             (cmd.GetType() == typeof(CommandButton) &&
-                             FunctionList.Contains(((CommandButton) cmd)._command))).ToList().ForEach(btn=>btn.Enabled=true);
+                             FunctionList.Contains(((CommandButton) cmd).Command))).ToList().ForEach(btn=>btn.Enabled=true);
                     //foreach (var btn in CommandButtons)
                     //{
                     //    btn.Enabled = true;
                     //}
                 }
             };
-            Servermaychange = true;
+            ServerMayChange = true;
             this.Invoke(mi);
 
         }
@@ -127,7 +131,7 @@ namespace CloudMagick_Client_Gui.GUI
                 //pictureBox1.Load(openFileDialog1.FileName);
                 Image mgkImage=Image.FromFile(openFileDialog1.FileName);
                 RedoUndo.AddImage(mgkImage);
-                WorkerWsClient.send(new UserCommand{cmd=Command.None,Image = Utility.ImageToBase64(mgkImage)});
+                WorkerWsClient.Send(new UserCommand{cmd=Command.None,Image = Utility.ImageToBase64(mgkImage)});
             }
             //this.Cursor = Cursors.WaitCursor;
         }
@@ -136,7 +140,7 @@ namespace CloudMagick_Client_Gui.GUI
         {
             pictureBox1.Image = null;
             RedoUndo.AddImage(null);
-            DisableCommandBtns();
+            DisableCommands();
             //this.Cursor = Cursors.WaitCursor;
 
         }
@@ -167,11 +171,11 @@ namespace CloudMagick_Client_Gui.GUI
             RedoUndo.Undo();
             if (pictureBox1.Image == null)
             {
-                DisableCommandBtns();
+                DisableCommands();
             }
             else
             {
-                EnableBtns();
+                EnableSending();
             }
         }
 
@@ -180,11 +184,11 @@ namespace CloudMagick_Client_Gui.GUI
             RedoUndo.Redo();
             if (pictureBox1.Image == null)
             {
-                DisableCommandBtns();
+                DisableCommands();
             }
             else
             {
-                EnableBtns();
+                EnableSending();
             }
         }
     }

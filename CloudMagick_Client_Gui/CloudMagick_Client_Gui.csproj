@@ -73,12 +73,13 @@
     <Compile Include="GUI\CommandButton.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="GUI\Form1.cs">
+    <Compile Include="GUI\ClientForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="GUI\Form1.Designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <Compile Include="GUI\ClientForm.Designer.cs">
+      <DependentUpon>ClientForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="GUI\IUserClient.cs" />
     <Compile Include="JSONstuff\ClientUser.cs" />
     <Compile Include="JSONstuff\ClientWorker.cs" />
     <Compile Include="JSONstuff\Result.cs" />
@@ -91,8 +92,8 @@
     <Compile Include="WebSocketClients\MasterWSClient.cs" />
     <Compile Include="JSONstuff\UserCommand.cs" />
     <Compile Include="WebSocketClients\WorkerWSClient.cs" />
-    <EmbeddedResource Include="GUI\Form1.resx">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <EmbeddedResource Include="GUI\ClientForm.resx">
+      <DependentUpon>ClientForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

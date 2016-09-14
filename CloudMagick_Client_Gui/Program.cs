@@ -30,7 +30,7 @@ namespace CloudMagick_Client_Gui
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1(ipport));
+            Application.Run(new ClientForm(ipport));
         }
     }
 }

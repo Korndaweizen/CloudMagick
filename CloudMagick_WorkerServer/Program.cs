@@ -29,7 +29,7 @@ namespace CloudMagick_WorkerServer
             WSClient client = new WSClient(ip,port);
             client.start();
 
-            Console.ReadKey(true);
+            Console.ReadLine();
             wssv.Stop();
             client.send("Bye");
             client.stop();

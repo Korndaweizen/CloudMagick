@@ -14,11 +14,12 @@ namespace CloudMagick_Client_Gui.ServerSelection
 {
     public class ServerSelector
     {
-        private Form1 _form1;
+        private readonly IUserClient _userClient;
+        private const int Interval = 30000;
 
-        public ServerSelector(Form1 form1)
+        public ServerSelector(IUserClient userClient)
         {
-            _form1 = form1;
+            _userClient = userClient;
         }
         public void DoThisAllTheTime()
         {
@@ -27,19 +28,24 @@ namespace CloudMagick_Client_Gui.ServerSelection
                 var mode = "LATENCY";
                 LogTo.Info("[SELECT] Selecting best Server with mode {0}:", mode);
                 SelectBestServerPing();
-                Thread.Sleep(10000);
+                Thread.Sleep(Interval);
             }
+        }
+
+        public void SelectBestServerBandwidth()
+        {
+            
         }
 
         public void SelectBestServerPing()
         {
             Dictionary<long, ClientWorker> workerDictionary = new Dictionary<long, ClientWorker>();
-            foreach (var worker in Form1.ActiveWorkers)
+            foreach (var worker in _userClient.ActiveWorkers)
             {
                 Ping sender = new Ping();
                 PingReply result = sender.Send(worker.IpAddress.Split(':').First());
 
-                if (result.Status == IPStatus.Success)
+                if (result?.Status == IPStatus.Success)
                 {
                     LogTo.Info("[SELECT] IP "+worker.IpAddress+", rtt " + result.RoundtripTime + "ms");
                     //Console.WriteLine("Success, Time Succeeded: " + result.RoundtripTime + "ms");
@@ -51,29 +57,32 @@ namespace CloudMagick_Client_Gui.ServerSelection
             }
             if (workerDictionary.Count > 0)
             {
-                workerDictionary.OrderBy(pair => pair.Key);
-                var workerPair = workerDictionary.First();
-                if (Form1.WorkerWsClient == null)
+                var test=workerDictionary.OrderBy(pair => pair.Key);
+                var workerPair = test.First();
+                if (_userClient.WorkerWsClient == null)
                 {
                     LogTo.Info("[SELECT] Initiated server to IP " + workerPair.Value + ", rtt " + workerPair.Key + "ms");
-                    Form1.WorkerWsClient = new WorkerWsClient(workerPair.Value.IpAddress, _form1);
-                    _form1.FunctionList = workerPair.Value.Functionality;
-                    Form1.WorkerWsClient.start();
+                    _userClient.WorkerWsClient = new WorkerWsClient(workerPair.Value.IpAddress, _userClient);
+                    _userClient.FunctionList = workerPair.Value.Functionality;
+                    _userClient.WorkerWsClient.Start();
                 }
                 else
                 {
-                    if (!Form1.WorkerWsClient.IPport.Equals(workerPair.Value) || !Form1.WorkerWsClient.WebSocket.IsAlive)
+                    if (!_userClient.WorkerWsClient.IPport.Equals(workerPair.Value.IpAddress) || !_userClient.WorkerWsClient.WebSocket.IsAlive)
                     {
-                        while (!_form1.Servermaychange)
+                        if (!_userClient.ServerMayChange)
                         {
                             LogTo.Warn("[SELECT] Server not allowed to change!");
+                        }
+                        while (!_userClient.ServerMayChange)
+                        {
                             Thread.Sleep(100);
                         }
-                        _form1.FunctionList = workerPair.Value.Functionality;
-                        Form1.WorkerWsClient.Close();
-                        Form1.WorkerWsClient = new WorkerWsClient(workerPair.Value.IpAddress, _form1);
-                        LogTo.Info(_form1.FunctionList.ToArray().Length.ToString);
-                        Form1.WorkerWsClient.start();
+                        _userClient.FunctionList = workerPair.Value.Functionality;
+                        _userClient.WorkerWsClient.Close();
+                        _userClient.WorkerWsClient = new WorkerWsClient(workerPair.Value.IpAddress, _userClient);
+                        LogTo.Info(_userClient.FunctionList.ToArray().Length.ToString);
+                        _userClient.WorkerWsClient.Start();
                         LogTo.Info("[SELECT] Updated server to IP " + workerPair.Value + ", rtt " + workerPair.Key + "ms");
                     }
                 }

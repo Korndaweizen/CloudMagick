@@ -4,7 +4,7 @@ using CloudMagick_Client_Gui.JSONstuff;
 
 namespace CloudMagick_Client_Gui.GUI
 {
-    partial class Form1
+    partial class ClientForm
     {
         /// <summary>
         /// Required designer variable.
@@ -43,15 +43,15 @@ namespace CloudMagick_Client_Gui.GUI
             this.changebgcol = new System.Windows.Forms.Button();
             this.close = new System.Windows.Forms.Button();
             this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
-            this.commandButton1 = new CloudMagick_Client_Gui.CommandButton(Command.ReduceBrightness);
-            this.commandButton2 = new CloudMagick_Client_Gui.CommandButton(Command.IncreaseBrightness);
-            this.commandButton3 = new CloudMagick_Client_Gui.CommandButton(Command.Blur);
-            this.commandButton4 = new CloudMagick_Client_Gui.CommandButton(Command.Sharpen);
-            this.commandButton5 = new CloudMagick_Client_Gui.CommandButton(Command.Border);
-            this.commandButton6 = new CloudMagick_Client_Gui.CommandButton(Command.Emboss);
-            this.commandButton7 = new CloudMagick_Client_Gui.CommandButton(Command.Oilpaint);
-            this.commandButton8 = new CloudMagick_Client_Gui.CommandButton(Command.Sepia);
-            this.commandButton9 = new CloudMagick_Client_Gui.CommandButton(Command.Solarize);
+            this.commandButton1 = new CommandButton(Command.ReduceBrightness,this);
+            this.commandButton2 = new CommandButton(Command.IncreaseBrightness, this);
+            this.commandButton3 = new CommandButton(Command.Blur, this);
+            this.commandButton4 = new CommandButton(Command.Sharpen, this);
+            this.commandButton5 = new CommandButton(Command.Border, this);
+            this.commandButton6 = new CommandButton(Command.Emboss, this);
+            this.commandButton7 = new CommandButton(Command.Oilpaint, this);
+            this.commandButton8 = new CommandButton(Command.Sepia, this);
+            this.commandButton9 = new CommandButton(Command.Solarize, this);
             this.panel1 = new System.Windows.Forms.Panel();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
@@ -322,7 +322,7 @@ namespace CloudMagick_Client_Gui.GUI
             this.redoToolStripMenuItem.Text = "Redo";
             this.redoToolStripMenuItem.Click += new System.EventHandler(this.redoToolStripMenuItem_Click);
             // 
-            // Form1
+            // ClientForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -330,7 +330,7 @@ namespace CloudMagick_Client_Gui.GUI
             this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
-            this.Name = "Form1";
+            this.Name = "ClientForm";
             this.Text = "CloudMagick";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.tableLayoutPanel1.ResumeLayout(false);

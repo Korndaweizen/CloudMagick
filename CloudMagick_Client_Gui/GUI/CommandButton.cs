@@ -1,33 +1,32 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using CloudMagick_Client_Gui.GUI;
 using CloudMagick_Client_Gui.JSONstuff;
 
-namespace CloudMagick_Client_Gui
+namespace CloudMagick_Client_Gui.GUI
 {
-   public class CommandButton : Button
+    public class CommandButton : Button
     {
-        public readonly Command _command;
-        public CommandButton(Command cmd)
+        public readonly Command Command;
+        private readonly ClientForm _form;
+
+        public CommandButton(Command cmd, ClientForm form)
         {
-            _command = cmd;
-            this.Text = cmd.ToString();
-            Form1.RegisterCommandButton(this);
+            _form = form;
+            Command = cmd;
+            Text = cmd.ToString();
+            _form.RegisterCommandButton(this);
         }
+
         public CommandButton()
         {
-            Form1.RegisterCommandButton(this);
+            _form.RegisterCommandButton(this);
         }
 
         protected override void OnClick(EventArgs e)
         {
             base.OnClick(e);
-            UserCommand cmd = new UserCommand {cmd = _command};
-            Form1.WorkerWsClient.send(cmd);
+            var cmd = new UserCommand {cmd = Command};
+            _form.WorkerWsClient.Send(cmd);
         }
     }
 }
