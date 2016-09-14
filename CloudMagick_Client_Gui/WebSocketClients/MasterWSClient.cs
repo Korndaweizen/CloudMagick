@@ -3,6 +3,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using Anotar.Log4Net;
+using CloudMagick_Client_Gui.GUI;
 using CloudMagick_Client_Gui.JSONstuff;
 using WebSocketSharp;
 
@@ -23,10 +25,10 @@ namespace CloudMagick_Client_Gui.WebSocketClients
 
         public void Start()
         {
-            var localip = GetLocalIpAddress();
+            var localip = Utility.GetLocalIpAddress();
             _user.IpAddress = localip;
-            _user.Secret = RandomString(15);
-            Console.WriteLine("IP Address {0}: {1} ", 1, localip);
+            _user.Secret = Utility.RandomString(15);
+            LogTo.Info("[MASTER] Local client IP Address {0}: {1} ", 1, localip);
 
             WebSocket.EmitOnPing = true;
 
@@ -43,14 +45,16 @@ namespace CloudMagick_Client_Gui.WebSocketClients
                     // Do something with e.Data.
                     //Console.WriteLine("Server sends: " + e.Data);
                     Form1.ActiveWorkers = Newtonsoft.Json.JsonConvert.DeserializeObject<List<ClientWorker>>(e.Data);
-                    Console.WriteLine("\nAvailable Workers:");
+                    LogTo.Info("[MASTER] Available workers:");
+                    //Console.WriteLine("\nAvailable Workers:");
                     foreach (var activeWorker in Form1.ActiveWorkers)
                     {
-                        Console.WriteLine(activeWorker.ToString());
+                        LogTo.Info("[MASTER] " + activeWorker.ToString());
+                        //Console.WriteLine(activeWorker.ToString());
                     }
                     Console.WriteLine();
 
-                    _form1.SelectBestServerPing();
+                    _form1.ServerSelector.SelectBestServerPing();
 
                     return;
                 }
@@ -58,7 +62,8 @@ namespace CloudMagick_Client_Gui.WebSocketClients
                 if (e.IsBinary)
                 {
                     // Do something with e.RawData.
-                    Console.WriteLine("Server sends: UNREADABLESHIT");
+                    LogTo.Warn("[MASTER] Sends unhandled binary");
+                    //Console.WriteLine("Server sends: UNREADABLESHIT");
                     return;
                 }
 
@@ -66,7 +71,8 @@ namespace CloudMagick_Client_Gui.WebSocketClients
                 {
                     // Do something to notify that a ping has been received.
                     var ret = WebSocket.Ping();
-                    Console.WriteLine("Ping Received" + e.Data + " " + ret);
+                    LogTo.Debug("[MASTER] Ping Received" + e.Data + " " + ret);
+                    //Console.WriteLine("Ping Received" + e.Data + " " + ret);
                     return;
                 }
             };
@@ -85,28 +91,6 @@ namespace CloudMagick_Client_Gui.WebSocketClients
             WebSocket.Send(msg);
         }
 
-        public static string GetLocalIpAddress()
-        {
-            String strHostName = string.Empty;
-            // Getting Ip address of local machine...
-            // First get the host name of local machine.
-            strHostName = Dns.GetHostName();
-            Console.WriteLine("Local Machine's Host Name: " + strHostName);
-            // Then using host name, get the IP address list..
-            IPHostEntry ipEntry = Dns.GetHostEntry(strHostName);
-            IPAddress[] addr = ipEntry.AddressList;
-
-            var localip = addr.Where(o => o.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork).ToArray().First().ToString();
-            return localip;
-        }
-
-
-        private static Random random = new Random();
-        public static string RandomString(int length)
-        {
-            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-            return new string(Enumerable.Repeat(chars, length)
-              .Select(s => s[random.Next(s.Length)]).ToArray());
-        }
+        
     }
 }

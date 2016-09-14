@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudMagick_MasterServer", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudMagick_WorkerServer", "CloudMagick_WorkerServer\CloudMagick_WorkerServer.csproj", "{4ADADBD3-26B1-4742-A669-A0FCDBE4D541}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApplication1", "ConsoleApplication1\ConsoleApplication1.csproj", "{CC3FEF2A-013D-42E4-B9CE-FD56C482192B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{4ADADBD3-26B1-4742-A669-A0FCDBE4D541}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4ADADBD3-26B1-4742-A669-A0FCDBE4D541}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4ADADBD3-26B1-4742-A669-A0FCDBE4D541}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC3FEF2A-013D-42E4-B9CE-FD56C482192B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC3FEF2A-013D-42E4-B9CE-FD56C482192B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC3FEF2A-013D-42E4-B9CE-FD56C482192B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC3FEF2A-013D-42E4-B9CE-FD56C482192B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -14,13 +14,15 @@ namespace CloudMagick_Client_Gui.JSONstuff
 
     public enum Command
     {
+        ReduceBrightness,
+        IncreaseBrightness,
         Blur,
         Sharpen,
-        Charcoal,
-        Sketch,
+        Emboss,
         Oilpaint,
-        Negate,
+        Border,
         Sepia,
+        Solarize,
         None
     }
 

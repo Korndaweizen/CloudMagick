@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Anotar.Log4Net;
 using CloudMagick_MasterServer.Clients;
 using WebSocketSharp;
 using WebSocketSharp.Server;
@@ -16,7 +17,7 @@ namespace CloudMagick_MasterServer.WebSocketBehaviors
         {
             if (e.IsText)
             {
-                Console.WriteLine("Received: "+e.Data);
+                LogTo.Info("Received: "+e.Data);
                 if (e.Data.StartsWith("REGISTER:"))
                 {
                     var json = e.Data.Split(new[] {':'}, 2).Last();
@@ -29,13 +30,13 @@ namespace CloudMagick_MasterServer.WebSocketBehaviors
             else if (e.IsBinary)
             {
                 string tmp = "Server Received Binary?!";
-                Console.WriteLine(tmp);
+                LogTo.Info(tmp);
                 Send(tmp);
             }
             else
             {
                 string tmp = "Server Received Ping!";
-                Console.WriteLine(tmp);
+                LogTo.Info(tmp);
                 Send(tmp);
             }
 
@@ -44,28 +45,24 @@ namespace CloudMagick_MasterServer.WebSocketBehaviors
 
         protected override void OnOpen()
         {
-            var msg = "A Client did Connect";
-            Console.WriteLine(msg + ID);
-            Console.WriteLine("Available Clients:");
-            foreach (var activeID in Sessions.ActiveIDs)
-            {
-                Console.WriteLine(activeID);
-            }
-            //Send(msg);
+            LogTo.Info("A new worker connected with ID " + ID + ". Active users: " + Sessions.ActiveIDs.ToArray());
         }
+
+        //Send(msg);
+       
 
         protected override void OnClose(CloseEventArgs e)
         {
             ClientWorker ignore;
             Program.ActiveWorkers.TryRemove(ID, out ignore);
             var msg = "A Client disconnected, ID: " + ID;
-            Console.WriteLine(msg);
+            LogTo.Info(msg);
         }
 
         protected override void OnError(ErrorEventArgs e)
         {
             var msg = "An Error Ocurred";
-            Console.WriteLine(msg + e.Message);
+            LogTo.Info(msg + e.Message);
         }
     }
 }

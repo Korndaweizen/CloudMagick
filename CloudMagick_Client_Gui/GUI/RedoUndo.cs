@@ -5,13 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using GraphicsMagick;
 
 namespace CloudMagick_Client_Gui
 {
     public class RedoUndo
     {
-        private static List<MagickImage> _imagesList;
+        private static List<Image> _imagesList;
         private static int _pointer;
         private static PictureBox _box;
         private const int Maxsize = 10;
@@ -19,18 +18,18 @@ namespace CloudMagick_Client_Gui
         public RedoUndo(PictureBox box)
         {
             _box = box;
-            _imagesList = new List<MagickImage>();
+            _imagesList = new List<Image>();
             _pointer = -1;
         }
 
-        public RedoUndo(PictureBox box, MagickImage initImage)
+        public RedoUndo(PictureBox box, Image initImage)
         {
             _box = box;
-            _imagesList = new List<MagickImage> { initImage };
+            _imagesList = new List<Image> { initImage };
             _pointer = 0;
         }
 
-        public static MagickImage GetCurrentImage()
+        public static Image GetCurrentImage()
         {
             if (_pointer<0)
             {
@@ -38,7 +37,7 @@ namespace CloudMagick_Client_Gui
             }
             return _imagesList.ElementAt(_pointer);
         }
-        public static void AddImage(MagickImage image)
+        public static void AddImage(Image image)
         {
             //image.Write("images/test.png");
             //image=new MagickImage("images/test.png");
@@ -57,7 +56,7 @@ namespace CloudMagick_Client_Gui
             if (image == null)
                 _box.Image = null;
             else
-            _box.Image = image.ToBitmap();
+            _box.Image = image;
         }
 
         public void Redo()
@@ -65,7 +64,7 @@ namespace CloudMagick_Client_Gui
             if (_pointer<_imagesList.Count-1)
             {
                 _pointer++;
-                _box.Image = _imagesList.ElementAt(_pointer)?.ToBitmap();
+                _box.Image = _imagesList.ElementAt(_pointer) ?? null;
             }
         }
 
@@ -74,7 +73,7 @@ namespace CloudMagick_Client_Gui
             if(_pointer > 0)
             {
                 _pointer--;
-                _box.Image = _imagesList.ElementAt(_pointer)?.ToBitmap();
+                _box.Image = _imagesList.ElementAt(_pointer) ?? null;
             }
         }
 

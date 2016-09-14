@@ -1,27 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
+using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
-using System.Collections.Concurrent;
-using System.Linq;
-using System.Net.NetworkInformation;
 using CloudMagick_Client_Gui.JSONstuff;
+using CloudMagick_Client_Gui.ServerSelection;
 using CloudMagick_Client_Gui.WebSocketClients;
-using GraphicsMagick;
 
-namespace CloudMagick_Client_Gui
+namespace CloudMagick_Client_Gui.GUI
 {
     public partial class Form1 : Form
     {
-        public static WorkerWSClient _workerWsClient;
+        public static WorkerWsClient WorkerWsClient;
         private Thread _serverSelectionThread;
         public static List<ClientWorker> ActiveWorkers = new List<ClientWorker>();
-        private static List<Button> _commandButtons = new List<Button>();
+        private static readonly List<Button> CommandButtons = new List<Button>();
         public static MasterWsClient MasterWs;
         public RedoUndo RedoUndo;
+        public readonly ServerSelector ServerSelector;
+        public bool Servermaychange = true;
+        public List<Command> FunctionList=new List<Command>();
 
 
         public Form1(string ipport)
@@ -31,8 +30,9 @@ namespace CloudMagick_Client_Gui
             InitializeComponent();
             RedoUndo = new RedoUndo(pictureBox1);
             InitDisableCommandBtns();
-            _commandButtons.Add(selimage);
-            _commandButtons.Add(clearimage);
+            CommandButtons.Add(selimage);
+            CommandButtons.Add(clearimage);
+            ServerSelector = new ServerSelector(this);
         }
 
         //
@@ -45,18 +45,18 @@ namespace CloudMagick_Client_Gui
         {
             //create and start a new thread in the load event.
             //passing it a method to be run on the new thread.
-            _serverSelectionThread = new Thread(DoThisAllTheTime);
+            _serverSelectionThread = new Thread(ServerSelector.DoThisAllTheTime);
             _serverSelectionThread.Start();
         }
 
         public static void RegisterCommandButton(CommandButton btn)
         {
-            _commandButtons.Add(btn);
+            CommandButtons.Add(btn);
         }
 
         private void InitDisableCommandBtns()
         {
-            foreach (var btn in _commandButtons)
+            foreach (var btn in CommandButtons)
             {
                 if (btn.GetType() == typeof(CommandButton))
                 {
@@ -66,8 +66,9 @@ namespace CloudMagick_Client_Gui
         }
         public void DisableCommandBtns()
         {
-            MethodInvoker mi = delegate () {
-                foreach (var btn in _commandButtons)
+            MethodInvoker mi = delegate()
+            {
+                foreach (var btn in CommandButtons)
                 {
                     if (btn.GetType() == typeof(CommandButton))
                     {
@@ -78,81 +79,45 @@ namespace CloudMagick_Client_Gui
             this.Invoke(mi);
         }
 
-        public void DisableBtns()
+        public void DisableBtns(bool servermaychange)
         {
             MethodInvoker mi = delegate () {
-                foreach (var btn in _commandButtons)
+                foreach (var btn in CommandButtons)
                 {
                     btn.Enabled = false;
                 }
             };
+            if (!servermaychange)
+            {
+                Servermaychange = false;
+            }
             this.Invoke(mi);
         }
+
 
         public void EnableBtns()
         {
             MethodInvoker mi = delegate()
             {
-                if (_workerWsClient.WebSocket.IsAlive & RedoUndo.GetCurrentImage()!=null)
+                if (WorkerWsClient.WebSocket.IsAlive & RedoUndo.GetCurrentImage()!=null)
                 {
-                    foreach (var btn in _commandButtons)
-                    {
-                        btn.Enabled = true;
-                    }
+                    CommandButtons.Where(
+                        cmd =>
+                            cmd.GetType() != typeof(CommandButton) ||
+                            (cmd.GetType() == typeof(CommandButton) &&
+                             FunctionList.Contains(((CommandButton) cmd)._command))).ToList().ForEach(btn=>btn.Enabled=true);
+                    //foreach (var btn in CommandButtons)
+                    //{
+                    //    btn.Enabled = true;
+                    //}
                 }
-                
             };
+            Servermaychange = true;
             this.Invoke(mi);
 
         }
 
-        private void DoThisAllTheTime()
-        {
-            while (true)
-            {
-                SelectBestServerPing();
-                Thread.Sleep(30000);
-            }
-        }
 
-        public void SelectBestServerPing()
-        {
-            Dictionary<long, string> workerDictionary = new Dictionary<long, string>();
-            foreach (var worker in ActiveWorkers)
-            {
-                Ping sender = new Ping();
-                PingReply result = sender.Send(worker.IpAddress.Split(':').First());
-
-                if (result.Status == IPStatus.Success)
-                {
-                    Console.WriteLine("Success, Time Succeeded: " + result.RoundtripTime + "ms");
-                    workerDictionary.Add(result.RoundtripTime, worker.IpAddress);
-                }
-
-                else
-                    Console.WriteLine("Error pinging " + worker.IpAddress);
-            }
-            if (workerDictionary.Count > 0)
-            {
-                workerDictionary.OrderBy(pair => pair.Key);
-                var workerPair = workerDictionary.First();
-                if (_workerWsClient == null)
-                {
-                    _workerWsClient = new WorkerWSClient(workerPair.Value, this);
-                    _workerWsClient.start();
-                }
-                else
-                {
-                    if (!_workerWsClient.IPport.Equals(workerPair.Value) || !_workerWsClient.WebSocket.IsAlive)
-                    {
-                        _workerWsClient.Close();
-                        _workerWsClient = new WorkerWSClient(workerPair.Value, this);
-                        _workerWsClient.start();
-                    }
-                }
-
-            }
-        }
 
 
         private void selimage_Click(object sender, EventArgs e)
@@ -160,9 +125,9 @@ namespace CloudMagick_Client_Gui
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
                 //pictureBox1.Load(openFileDialog1.FileName);
-                MagickImage mgkImage=new MagickImage(openFileDialog1.FileName);
+                Image mgkImage=Image.FromFile(openFileDialog1.FileName);
                 RedoUndo.AddImage(mgkImage);
-                _workerWsClient.send(new UserCommand{cmd=Command.None,Image = mgkImage.ToBase64()});
+                WorkerWsClient.send(new UserCommand{cmd=Command.None,Image = Utility.ImageToBase64(mgkImage)});
             }
             //this.Cursor = Cursors.WaitCursor;
         }

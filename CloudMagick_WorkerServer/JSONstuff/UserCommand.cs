@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using GraphicsMagick;
+using Anotar.Log4Net;
 
 namespace CloudMagick_WorkerServer.JSONstuff
 {
@@ -17,51 +17,92 @@ namespace CloudMagick_WorkerServer.JSONstuff
         public string Image { get; set; }
         public Command cmd { get; set; }
 
-        public void Execute(MagickImage mgkImage)
+        public int Execute(string path)
         {
+            //CommandlineExec("");
+            string shellCommand="";
             var stopwatch = Stopwatch.StartNew();
             switch (cmd)
             {
+                case Command.ReduceBrightness:
+                    shellCommand = "-modulate 90";
+                    break;
+                case Command.IncreaseBrightness:
+                    shellCommand = "-modulate 110";
+                    break;
                 case Command.Blur:
-                    mgkImage.Blur();
+                    shellCommand = "-blur 0x4";
                     break;
                 case Command.Sharpen:
-                    mgkImage.Sharpen();
+                    shellCommand = "-sharpen 0x4";
                     break;
-                case Command.Charcoal:
-                    mgkImage.Charcoal();
-                    break;
-                case Command.Sketch:
-                    mgkImage.Solarize();
+                //case Command.Charcoal:
+                //    shellCommand = "-charcoal 3";
+                //   break;
+                case Command.Emboss:
+                    shellCommand = "-emboss 0x.5";
                     break;
                 case Command.Oilpaint:
-                    mgkImage.OilPaint();
+                    shellCommand = "-paint 3";
                     break;
-                case Command.Negate:
-                    mgkImage.Negate();
+                case Command.Border:
+                    shellCommand = "-border 10";
                     break;
+                //case Command.Negate:
+                //    shellCommand = "-negate";
+                //    break;
                 case Command.Sepia:
-                    mgkImage.Border(5);
+                    shellCommand = "-sepia-tone 60%";
+                    break;
+                case Command.Solarize:
+                    shellCommand = "-solarize 50%";
                     break;
             }
-            var time = stopwatch.ElapsedMilliseconds;
-            Console.WriteLine(@"Execution of command {0} took {1}ms", cmd, time);
+            CommandlineExec(shellCommand, path);
+            var time = unchecked((int)stopwatch.ElapsedMilliseconds);
+            LogTo.Info(@"Execution of command {0} took {1}ms", cmd, time);
             //Image = mgkImage.ToBase64();
             //Console.WriteLine(@"Conversion to base64 took {0}ms", stopwatch.ElapsedMilliseconds-time);
             stopwatch.Stop();
+            return time;
+        }
+
+        public static void CommandlineExec(string cmd, string path)
+        {
+            Process proc = new Process();
+            if (Environment.OSVersion.ToString().Contains("Windows"))
+            {
+                proc.StartInfo.FileName = "cmd.exe";
+                proc.StartInfo.Arguments = "/C mogrify " + cmd + " " + path;
+            }
+            else
+            {
+                proc.StartInfo.FileName = "mogrify";
+                proc.StartInfo.Arguments = cmd + " " + path;
+            }
+            //proc.StartInfo.UseShellExecute = false;
+            //proc.StartInfo.RedirectStandardError = true;
+            //proc.StartInfo.RedirectStandardInput = true;
+            //proc.StartInfo.RedirectStandardOutput = true;
+            proc.Start();
+            proc.WaitForExit();
+            //var output = proc.StandardOutput.ReadToEnd();
+            //Console.WriteLine("stdout: {0}", output);
         }
 
     }
 
     public enum Command
     {
+        ReduceBrightness,
+        IncreaseBrightness,
         Blur,
         Sharpen,
-        Charcoal,
-        Sketch,
+        Emboss,
         Oilpaint,
-        Negate,
+        Border,
         Sepia,
+        Solarize,
         None
     }
 

@@ -4,13 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using CloudMagick_Client_Gui.GUI;
 using CloudMagick_Client_Gui.JSONstuff;
 
 namespace CloudMagick_Client_Gui
 {
    public class CommandButton : Button
     {
-        private readonly Command _command;
+        public readonly Command _command;
         public CommandButton(Command cmd)
         {
             _command = cmd;
@@ -26,7 +27,7 @@ namespace CloudMagick_Client_Gui
         {
             base.OnClick(e);
             UserCommand cmd = new UserCommand {cmd = _command};
-            Form1._workerWsClient.send(cmd);
+            Form1.WorkerWsClient.send(cmd);
         }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using Anotar.Log4Net;
+using CloudMagick_Client_Gui.GUI;
 using CloudMagick_Client_Gui.WebSocketClients;
 
 namespace CloudMagick_Client_Gui
