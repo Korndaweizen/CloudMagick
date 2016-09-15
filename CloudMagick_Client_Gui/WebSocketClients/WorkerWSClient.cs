@@ -20,6 +20,7 @@ namespace CloudMagick_Client_Gui.WebSocketClients
         private readonly IUserClient _clientForm;
         private Stopwatch _stopper;
         private int _sendingTime;
+        private string _tmp;
 
         public WorkerWsClient(string ipport, IUserClient clientForm)
         {
@@ -67,7 +68,7 @@ namespace CloudMagick_Client_Gui.WebSocketClients
                         var completeTime = unchecked((int)_stopper.ElapsedMilliseconds);
                         _stopper.Reset();
                         _clientForm.EnableSending();
-                        LogTo.Error("[WORKER] [IMGSIZE] "+result.ImgSize+" [COMMAND] "+result.Cmd+" [COMPLETE] "+completeTime+"ms [ULTIME] "+_sendingTime+"ms [EXECTIME] " + result.ExecutionTime +"ms [DLTIME] " + combineConversionSending + "ms");
+                        LogTo.Error("[WORKER] [IMGSIZE] "+result.ImgSize+" [UPLOAD] "+_tmp+" [COMMAND] "+result.Cmd+" [COMPLETE] "+completeTime+"ms [ULTIME] "+_sendingTime+"ms [EXECTIME] " + result.ExecutionTime +"ms [DLTIME] " + combineConversionSending + "ms");
                     }
                     return;
                 }
@@ -75,11 +76,8 @@ namespace CloudMagick_Client_Gui.WebSocketClients
                 {
                     Image image = Utility.ImageFromByte(e.RawData);
                     RedoUndo.AddImage(image);
-                    // Do something with e.RawData.
-                    //var time = unchecked ((int) _stopper.ElapsedMilliseconds);
+                    
                     _stopper.Stop();
-                    //LogTo.Info("[WORKER] Processing complete");
-                    //LogTo.Info("[CLIENT] Processing took "+time+ "ms");
                     return;
                 }
 
@@ -115,7 +113,7 @@ namespace CloudMagick_Client_Gui.WebSocketClients
 
         public void Send(UserCommand userCommand)
         {
-            string tmp = "IMAGE";
+            _tmp = "Image";
             
             if (userCommand.Image == null)
             {
@@ -126,7 +124,7 @@ namespace CloudMagick_Client_Gui.WebSocketClients
                 }
                 else
                 {
-                    tmp = "NoImage";
+                    _tmp = "NoImage";
                 }
             }
             if (!userCommand.cmd.Equals(Command.None))
@@ -134,7 +132,7 @@ namespace CloudMagick_Client_Gui.WebSocketClients
                 //_stopper.Start();
             }
             _stopper.Start();
-            LogTo.Debug("[CLIENT] Sending COMMAND: " + tmp +", " + userCommand.cmd );
+            LogTo.Debug("[CLIENT] Sending COMMAND: " + _tmp +", " + userCommand.cmd );
             WebSocket.Send("COMMAND:"+Newtonsoft.Json.JsonConvert.SerializeObject(userCommand));
             _sendingTime = unchecked ((int) _stopper.ElapsedMilliseconds);
             _clientForm.DisableSending(servermaychange: false);
