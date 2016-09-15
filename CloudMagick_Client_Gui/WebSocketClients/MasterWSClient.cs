@@ -28,7 +28,7 @@ namespace CloudMagick_Client_Gui.WebSocketClients
             var localip = Utility.GetLocalIpAddress();
             _user.IpAddress = localip;
             _user.Secret = Utility.RandomString(15);
-            LogTo.Info("[MASTER] Local client IP Address {0}: {1} ", 1, localip);
+            LogTo.Debug("[MASTER] Local client IP Address {0}: {1} ", 1, localip);
 
             WebSocket.EmitOnPing = true;
 
@@ -42,18 +42,10 @@ namespace CloudMagick_Client_Gui.WebSocketClients
             {
                 if (e.IsText)
                 {
-                    // Do something with e.Data.
-                    //Console.WriteLine("Server sends: " + e.Data);
                     _clientForm.ActiveWorkers = Newtonsoft.Json.JsonConvert.DeserializeObject<List<ClientWorker>>(e.Data);
-                    LogTo.Info("[MASTER] Available workers:");
-                    //Console.WriteLine("\nAvailable Workers:");
-                    foreach (var activeWorker in _clientForm.ActiveWorkers)
-                    {
-                        LogTo.Info("[MASTER] " + activeWorker.ToString());
-                        //Console.WriteLine(activeWorker.ToString());
-                    }
-                    Console.WriteLine();
-
+                    LogTo.Debug("[MASTER] Available workers:");
+                    LogTo.Warn("[MASTER] [WORKERS] " +
+                               string.Join(",", _clientForm.ActiveWorkers.Select(worker => "IP:" + worker.IpAddress+" F:"+worker.Functionality.Count)));
                     _clientForm.ServerSelector.SelectBestServerPing();
 
                     return;
@@ -62,16 +54,15 @@ namespace CloudMagick_Client_Gui.WebSocketClients
                 if (e.IsBinary)
                 {
                     // Do something with e.RawData.
-                    LogTo.Warn("[MASTER] Sends unhandled binary");
-                    //Console.WriteLine("Server sends: UNREADABLESHIT");
+                    LogTo.Debug("[MASTER] Sends unhandled binary");
                     return;
                 }
 
                 if (e.IsPing)
                 {
                     // Do something to notify that a ping has been received.
-                    var ret = WebSocket.Ping();
-                    LogTo.Debug("[MASTER] Ping Received" + e.Data + " " + ret);
+                    //var ret = WebSocket.Ping();
+                    //LogTo.Debug("[MASTER] Ping Received" + e.Data + " " + ret);
                     //Console.WriteLine("Ping Received" + e.Data + " " + ret);
                     return;
                 }

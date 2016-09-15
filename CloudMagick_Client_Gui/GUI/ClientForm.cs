@@ -17,6 +17,7 @@ namespace CloudMagick_Client_Gui.GUI
         public RedoUndo RedoUndo;
         public ServerSelector ServerSelector { get; set; }
         public bool ServerMayChange { get; set; }= true;
+        public string Mode { get; set; } = "Latency";
 
 
         public ClientForm(string ipport)
@@ -190,6 +191,22 @@ namespace CloudMagick_Client_Gui.GUI
             {
                 EnableSending();
             }
+        }
+
+        private void radioLatency_CheckedChanged(object sender, EventArgs e)
+        { 
+            foreach (Control control in this.groupBox2.Controls)
+            {
+                if (control is RadioButton)
+                {
+                    RadioButton radio = control as RadioButton;
+                    if (radio.Checked)
+                    {
+                        Mode = radio.Text;
+                    }
+                }
+            }
+            this.Text = "CloudMagick - " + Mode;
         }
     }
 }

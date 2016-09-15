@@ -24,6 +24,7 @@ namespace CloudMagick_WorkerServer
             }
             var wssv = new WebSocketServer(1151);
             wssv.AddWebSocketService<BehaviorUser>("/User");
+            wssv.AddWebSocketService<BehaviorBandwidthTest>("/BandwidthTest");
             wssv.Start();
 
             WSClient client = new WSClient(ip,port);

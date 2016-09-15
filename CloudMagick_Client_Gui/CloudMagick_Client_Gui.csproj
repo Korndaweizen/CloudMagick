@@ -91,6 +91,7 @@
     <Compile Include="Utility.cs" />
     <Compile Include="WebSocketClients\MasterWSClient.cs" />
     <Compile Include="JSONstuff\UserCommand.cs" />
+    <Compile Include="WebSocketClients\WorkerWSBandwidthTest.cs" />
     <Compile Include="WebSocketClients\WorkerWSClient.cs" />
     <EmbeddedResource Include="GUI\ClientForm.resx">
       <DependentUpon>ClientForm.cs</DependentUpon>

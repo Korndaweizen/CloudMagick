@@ -20,7 +20,7 @@ namespace CloudMagick_MasterServer
             wssv.AddWebSocketService<BehaviorWorker>("/Worker");
             wssv.Start();
 
-            Console.ReadKey(true);
+            Console.ReadLine();
             wssv.Stop();
         }
     }

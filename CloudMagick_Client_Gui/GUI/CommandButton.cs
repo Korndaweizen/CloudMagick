@@ -19,7 +19,7 @@ namespace CloudMagick_Client_Gui.GUI
 
         public CommandButton()
         {
-            _form.RegisterCommandButton(this);
+            //_form.RegisterCommandButton(this);
         }
 
         protected override void OnClick(EventArgs e)

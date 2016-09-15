@@ -21,6 +21,7 @@ namespace CloudMagick_Client_Gui.GUI
         List<Command> FunctionList { get; set; }
         ServerSelector ServerSelector { get; set; }
         bool ServerMayChange { get; set; }
+        string Mode { get; set; }
 
     }
 }

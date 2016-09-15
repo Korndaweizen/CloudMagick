@@ -52,7 +52,7 @@ namespace CloudMagick_Client_Gui.WebSocketClients
                 {
                     if (e.Data.StartsWith("RESEND"))
                     {
-                        LogTo.Info("[WORKER] Image must be resent");
+                        LogTo.Debug("[WORKER] Image must be resent");
                         var json = e.Data.Split(new[] { ':' }, 2).Last();
                         UserCommand usrcmd = Newtonsoft.Json.JsonConvert.DeserializeObject<UserCommand>(json);
 
@@ -67,7 +67,7 @@ namespace CloudMagick_Client_Gui.WebSocketClients
                         var completeTime = unchecked((int)_stopper.ElapsedMilliseconds);
                         _stopper.Reset();
                         _clientForm.EnableSending();
-                        LogTo.Info("[WORKER] [IMGSIZE] "+result.ImgSize+" [COMMAND] "+result.Cmd+" [COMPLETE] "+completeTime+"ms [ULTIME] "+_sendingTime+"ms [EXECTIME] " + result.ExecutionTime +"ms [DLTIME] " + combineConversionSending + "ms");
+                        LogTo.Error("[WORKER] [IMGSIZE] "+result.ImgSize+" [COMMAND] "+result.Cmd+" [COMPLETE] "+completeTime+"ms [ULTIME] "+_sendingTime+"ms [EXECTIME] " + result.ExecutionTime +"ms [DLTIME] " + combineConversionSending + "ms");
                     }
                     return;
                 }
@@ -87,7 +87,7 @@ namespace CloudMagick_Client_Gui.WebSocketClients
                 {
                     // Do something to notify that a ping has been received.
                     var ret = WebSocket.Ping();
-                    LogTo.Debug("[CLIENT] Ping received from worker " + e.Data + " " + ret);
+                    //LogTo.Debug("[CLIENT] Ping received from worker " + e.Data + " " + ret);
                     return;
                 }
             };
@@ -126,7 +126,7 @@ namespace CloudMagick_Client_Gui.WebSocketClients
                 }
                 else
                 {
-                    tmp = "NULL";
+                    tmp = "NoImage";
                 }
             }
             if (!userCommand.cmd.Equals(Command.None))
@@ -134,7 +134,7 @@ namespace CloudMagick_Client_Gui.WebSocketClients
                 //_stopper.Start();
             }
             _stopper.Start();
-            LogTo.Info("[CLIENT] Sending COMMAND: " + tmp +", " + userCommand.cmd );
+            LogTo.Debug("[CLIENT] Sending COMMAND: " + tmp +", " + userCommand.cmd );
             WebSocket.Send("COMMAND:"+Newtonsoft.Json.JsonConvert.SerializeObject(userCommand));
             _sendingTime = unchecked ((int) _stopper.ElapsedMilliseconds);
             _clientForm.DisableSending(servermaychange: false);
