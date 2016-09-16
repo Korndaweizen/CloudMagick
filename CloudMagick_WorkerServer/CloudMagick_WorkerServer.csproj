@@ -41,6 +41,10 @@
       <HintPath>..\packages\Anotar.Log4Net.Fody.3.1.0\lib\Anotar.Log4Net.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="CommandLine, Version=1.9.71.2, Culture=neutral, PublicKeyToken=de6f01bd326f8c32, processorArchitecture=MSIL">
+      <HintPath>..\packages\CommandLineParser.1.9.71\lib\net45\CommandLine.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="log4net, Version=1.2.11.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <HintPath>..\packages\log4net.2.0.0\lib\net40-full\log4net.dll</HintPath>
       <Private>True</Private>
@@ -61,8 +65,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommandLineOptions.cs" />
     <Compile Include="JSONstuff\ClientUser.cs" />
     <Compile Include="JSONstuff\ClientWorker.cs" />
+    <Compile Include="JSONstuff\WorkerConfig.cs" />
     <Compile Include="JSONstuff\Result.cs" />
     <Compile Include="JSONstuff\UserCommand.cs" />
     <Compile Include="Program.cs" />

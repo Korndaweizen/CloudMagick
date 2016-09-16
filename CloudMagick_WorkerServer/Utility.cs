@@ -44,11 +44,11 @@ namespace CloudMagick_WorkerServer
         public static string GetLocalIpAddress()
         {
             String strHostName = string.Empty;
-            // Getting Ip address of local machine...
+            // Getting MasterIpport address of local machine...
             // First get the host name of local machine.
             strHostName = Dns.GetHostName();
             //Console.WriteLine("Local Machine's Host Name: " + strHostName);
-            // Then using host name, get the IP address list..
+            // Then using host name, get the OwnIP address list..
             IPHostEntry ipEntry = Dns.GetHostEntry(strHostName);
             IPAddress[] addr = ipEntry.AddressList;
 

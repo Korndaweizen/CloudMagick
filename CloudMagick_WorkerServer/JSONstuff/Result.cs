@@ -6,12 +6,13 @@ using System.Threading.Tasks;
 
 namespace CloudMagick_WorkerServer.JSONstuff
 {
-    class Result
+    public class Result
     {
         public int ExecutionTime { get; set; }
         public int ConversionTime { get; set; }
         public int SendingTime { get; set; }
         public Command Cmd { get; set; }
+        public bool RequestContainedImg { get; set; }
         public int ImgSize { get; set; }
 
         public override string ToString()

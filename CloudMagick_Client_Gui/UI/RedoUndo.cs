@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace CloudMagick_Client_Gui
+namespace CloudMagick_Client_UI.UI
 {
     public class RedoUndo
     {
@@ -18,6 +15,11 @@ namespace CloudMagick_Client_Gui
         public RedoUndo(PictureBox box)
         {
             _box = box;
+            _imagesList = new List<Image>();
+            _pointer = -1;
+        }
+        public RedoUndo()
+        {
             _imagesList = new List<Image>();
             _pointer = -1;
         }
@@ -53,9 +55,10 @@ namespace CloudMagick_Client_Gui
                 _imagesList.RemoveAt(0);
                 _pointer--;
             }
-            if (image == null)
-                _box.Image = null;
-            else
+            if (_box == null)
+            {
+                return;
+            }
             _box.Image = image;
         }
 
@@ -64,6 +67,10 @@ namespace CloudMagick_Client_Gui
             if (_pointer<_imagesList.Count-1)
             {
                 _pointer++;
+                if (_box==null)
+                {
+                    return;
+                }
                 _box.Image = _imagesList.ElementAt(_pointer) ?? null;
             }
         }
@@ -73,6 +80,10 @@ namespace CloudMagick_Client_Gui
             if(_pointer > 0)
             {
                 _pointer--;
+                if (_box == null)
+                {
+                    return;
+                }
                 _box.Image = _imagesList.ElementAt(_pointer) ?? null;
             }
         }

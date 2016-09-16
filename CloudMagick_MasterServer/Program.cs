@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using CloudMagick_MasterServer.Clients;
+using System.IO;
 using CloudMagick_MasterServer.WebSocketBehaviors;
-using WebSocketSharp;
+using CloudMagick_WorkerServer.JSONstuff;
 using WebSocketSharp.Server;
 
 namespace CloudMagick_MasterServer
@@ -14,7 +14,9 @@ namespace CloudMagick_MasterServer
 
         public static void Main(string[] args)
         {
-            var wssv = new WebSocketServer(1150);
+            var config =
+                    Newtonsoft.Json.JsonConvert.DeserializeObject<MasterConfig>(File.ReadAllText("conf.json"));
+            var wssv = new WebSocketServer(config.OwnPort);
 
             wssv.AddWebSocketService<BehaviorUser>("/User");
             wssv.AddWebSocketService<BehaviorWorker>("/Worker");

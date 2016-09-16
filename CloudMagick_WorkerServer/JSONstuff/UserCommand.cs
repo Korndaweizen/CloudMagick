@@ -1,28 +1,25 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Net.Mime;
-using System.Text;
-using System.Threading.Tasks;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
 using Anotar.Log4Net;
 
 namespace CloudMagick_WorkerServer.JSONstuff
 {
-    class UserCommand
+    public class UserCommand
     {
         public string Image { get; set; }
-        public Command cmd { get; set; }
+        public Command Cmd { get; set; }
+
+        public override string ToString()
+        {
+            return "COMMAND:" + Newtonsoft.Json.JsonConvert.SerializeObject(this);
+        }
 
         public int Execute(string path)
         {
             //CommandlineExec("");
             string shellCommand="";
             var stopwatch = Stopwatch.StartNew();
-            switch (cmd)
+            switch (Cmd)
             {
                 case Command.ReduceBrightness:
                     shellCommand = "-modulate 90";
@@ -60,7 +57,7 @@ namespace CloudMagick_WorkerServer.JSONstuff
             }
             CommandlineExec(shellCommand, path);
             var time = unchecked((int)stopwatch.ElapsedMilliseconds);
-            LogTo.Info(@"Execution of command {0} took {1}ms", cmd, time);
+            LogTo.Info(@"Execution of command {0} took {1}ms", Cmd, time);
             //Image = mgkImage.ToBase64();
             //Console.WriteLine(@"Conversion to base64 took {0}ms", stopwatch.ElapsedMilliseconds-time);
             stopwatch.Stop();

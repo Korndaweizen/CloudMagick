@@ -1,28 +1,26 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Net;
 using Anotar.Log4Net;
-using CloudMagick_Client_Gui.GUI;
-using CloudMagick_Client_Gui.JSONstuff;
+using CloudMagick_Client_UI.UI;
+using CloudMagick_WorkerServer.JSONstuff;
 using WebSocketSharp;
 
-namespace CloudMagick_Client_Gui.WebSocketClients
+namespace CloudMagick_Client_UI.WebSocketClients
 {
-    public class WorkerWsClient
+    public class WorkerWsClientConsole : IWorkerWebSocketClient
     {
         private static ClientUser _user = new ClientUser();
-        public WebSocket WebSocket;
-        public string IPport;
+        public WebSocket WebSocket { get; set; }
+        public string IPport { get; set; }
         private readonly IUserClient _clientForm;
         private Stopwatch _stopper;
         private int _sendingTime;
         private string _tmp;
+        private int _sentImgSize;
 
-        public WorkerWsClient(string ipport, IUserClient clientForm)
+        public WorkerWsClientConsole(string ipport, IUserClient clientForm)
         {
             _clientForm = clientForm;
             IPport = ipport;
@@ -35,7 +33,7 @@ namespace CloudMagick_Client_Gui.WebSocketClients
             var localip = Utility.GetLocalIpAddress();
             _user.IpAddress = localip;
             _user.Secret = Utility.RandomString(15);
-            //Console.WriteLine("IP Address {0}: {1} ", 1, localip);
+            //Console.WriteLine("OwnIP Address {0}: {1} ", 1, localip);
 
 
             WebSocket.EmitOnPing = true;
@@ -68,13 +66,14 @@ namespace CloudMagick_Client_Gui.WebSocketClients
                         var completeTime = unchecked((int)_stopper.ElapsedMilliseconds);
                         _stopper.Reset();
                         _clientForm.EnableSending();
-                        LogTo.Error("[WORKER] [IMGSIZE] "+result.ImgSize+" [UPLOAD] "+_tmp+" [COMMAND] "+result.Cmd+" [COMPLETE] "+completeTime+"ms [ULTIME] "+_sendingTime+"ms [EXECTIME] " + result.ExecutionTime +"ms [DLTIME] " + combineConversionSending + "ms");
+                        LogTo.Error("[WORKER] [IMGSIZERECEIVED] " + result.ImgSize + "B [IMGSIZESENT] " + _sentImgSize + "B [IMGINCLUDED] " + result.RequestContainedImg + " [COMMAND] " + result.Cmd + " [COMPLETE] " + completeTime + "ms [ULTIME] " + _sendingTime + "ms [EXECTIME] " + result.ExecutionTime + "ms [DLTIME] " + combineConversionSending + "ms");
                     }
                     return;
                 }
                 if (e.IsBinary)
                 {
                     Image image = Utility.ImageFromByte(e.RawData);
+                    File.WriteAllBytes("current.png", e.RawData);
                     RedoUndo.AddImage(image);
                     
                     _stopper.Stop();
@@ -84,7 +83,7 @@ namespace CloudMagick_Client_Gui.WebSocketClients
                 if (e.IsPing)
                 {
                     // Do something to notify that a ping has been received.
-                    var ret = WebSocket.Ping();
+                    //var ret = WebSocket.Ping();
                     //LogTo.Debug("[CLIENT] Ping received from worker " + e.Data + " " + ret);
                     return;
                 }
@@ -92,6 +91,7 @@ namespace CloudMagick_Client_Gui.WebSocketClients
 
             WebSocket.OnClose += (sender, eventArgs) =>
             {
+                LogTo.Debug("[WORKER] Connection closed" );
                 _clientForm.DisableSending(servermaychange:true);
             };
 
@@ -113,6 +113,7 @@ namespace CloudMagick_Client_Gui.WebSocketClients
 
         public void Send(UserCommand userCommand)
         {
+            _clientForm.DisableSending(servermaychange: false);
             _tmp = "Image";
             
             if (userCommand.Image == null)
@@ -120,22 +121,24 @@ namespace CloudMagick_Client_Gui.WebSocketClients
                 
                 if (!RedoUndo.IsPointerAtNewest())
                 {
-                    userCommand.Image = Utility.ImageToBase64(RedoUndo.GetCurrentImage());
+                    var imgByte = Utility.ImageToBytes(RedoUndo.GetCurrentImage());
+                    userCommand.Image = Utility.BytesToBas64(imgByte);
+                    _sentImgSize = imgByte.Length;
                 }
                 else
                 {
                     _tmp = "NoImage";
+                    //_sentImgSize = 0;
                 }
             }
-            if (!userCommand.cmd.Equals(Command.None))
+            else
             {
-                //_stopper.Start();
+                _sentImgSize = Utility.ImageToBytes(RedoUndo.GetCurrentImage()).Length;
             }
             _stopper.Start();
-            LogTo.Debug("[CLIENT] Sending COMMAND: " + _tmp +", " + userCommand.cmd );
+            LogTo.Debug("[CLIENT] Sending COMMAND: " + _tmp +", " + userCommand.Cmd );
             WebSocket.Send("COMMAND:"+Newtonsoft.Json.JsonConvert.SerializeObject(userCommand));
             _sendingTime = unchecked ((int) _stopper.ElapsedMilliseconds);
-            _clientForm.DisableSending(servermaychange: false);
         }
     }
 }

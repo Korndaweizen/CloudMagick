@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.IO;
+using Anotar.Log4Net;
 using CloudMagick_WorkerServer.JSONstuff;
 using CloudMagick_WorkerServer.WebSocketBehaviors;
 using WebSocketSharp.Server;
@@ -12,28 +14,29 @@ namespace CloudMagick_WorkerServer
 
         public static void Main(string[] args)
         {
-            string ip = "127.0.0.1";
-            string port="1150";
-            if (args.Length > 0)
+            var options = new CommandLineOptions();
+            if (CommandLine.Parser.Default.ParseArguments(args, options))
             {
-                ip = args[0];
-                if (args.Length > 1)
-                {
-                    port = args[1];
-                }
+                var config =
+                    Newtonsoft.Json.JsonConvert.DeserializeObject<WorkerConfig>(File.ReadAllText(options.Configpath));
+
+                var wssv = new WebSocketServer(config.OwnPort);
+                wssv.AddWebSocketService<BehaviorUser>("/User");
+                wssv.AddWebSocketService<BehaviorBandwidthTest>("/BandwidthTest");
+                wssv.Start();
+
+                WSClient client = new WSClient(config);
+                client.Start();
+
+                Console.ReadLine();
+                wssv.Stop();
+                client.Send("Bye");
+                client.Stop();
             }
-            var wssv = new WebSocketServer(1151);
-            wssv.AddWebSocketService<BehaviorUser>("/User");
-            wssv.AddWebSocketService<BehaviorBandwidthTest>("/BandwidthTest");
-            wssv.Start();
-
-            WSClient client = new WSClient(ip,port);
-            client.start();
-
-            Console.ReadLine();
-            wssv.Stop();
-            client.send("Bye");
-            client.stop();
+            else
+            {
+                LogTo.Debug("Error");
+            }
         }
     }
 }

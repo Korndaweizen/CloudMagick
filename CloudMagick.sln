@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudMagick_Client_Gui", "CloudMagick_Client_Gui\CloudMagick_Client_Gui.csproj", "{D88AF9A7-40C8-4BD5-A565-B5BCB55E1C0D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudMagick_Client_UI", "CloudMagick_Client_Gui\CloudMagick_Client_UI.csproj", "{D88AF9A7-40C8-4BD5-A565-B5BCB55E1C0D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudMagick_MasterServer", "CloudMagick_MasterServer\CloudMagick_MasterServer.csproj", "{CC12E660-575D-419D-9A45-3195318DF26E}"
 EndProject

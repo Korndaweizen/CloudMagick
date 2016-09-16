@@ -1,22 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net.NetworkInformation;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using Anotar.Log4Net;
-using CloudMagick_Client_Gui.GUI;
-using CloudMagick_Client_Gui.JSONstuff;
-using CloudMagick_Client_Gui.WebSocketClients;
-using WebSocketSharp;
+using CloudMagick_Client_UI.UI;
+using CloudMagick_Client_UI.WebSocketClients;
+using CloudMagick_WorkerServer.JSONstuff;
 
-namespace CloudMagick_Client_Gui.ServerSelection
+namespace CloudMagick_Client_UI.ServerSelection
 {
     public class ServerSelector
     {
         private readonly IUserClient _userClient;
-        private const int Interval = 10000;
+        private const int Interval = 30000;
 
         public ServerSelector(IUserClient userClient)
         {
@@ -47,7 +43,7 @@ namespace CloudMagick_Client_Gui.ServerSelection
                 int sleeptime = 0;
                 int sleepval = 100;
 
-                var ws = new WorkerWSBandwidthTest(worker.IpAddress);
+                var ws = new WorkerWSClientBandwidthTest(worker.IpAddress);
                 ws.Start();
                 while (ws.WebSocket.IsAlive && sleeptime<60000)
                 {
@@ -78,13 +74,13 @@ namespace CloudMagick_Client_Gui.ServerSelection
 
                 if (result?.Status == IPStatus.Success)
                 {
-                    //LogTo.Info("[SELECT] IP "+worker.IpAddress+" " + result.RoundtripTime + "ms");
+                    //LogTo.Info("[SELECT] OwnIP "+worker.IpAddress+" " + result.RoundtripTime + "ms");
                     //Console.WriteLine("Success, Time Succeeded: " + result.RoundtripTime + "ms");
                     workerDictionary.Add(result.RoundtripTime, worker);
                 }
 
                 else
-                    LogTo.Debug("[SELECT] Pinging IP " + worker.IpAddress + " failed");
+                    LogTo.Debug("[SELECT] Pinging OwnIP " + worker.IpAddress + " failed");
             }
             EvalAndChangeServer(workerDictionary);
         }
@@ -99,7 +95,7 @@ namespace CloudMagick_Client_Gui.ServerSelection
                 if (_userClient.WorkerWsClient == null)
                 {
                     LogTo.Info("[SELECT] [INITIAL] " + workerPair.Value.IpAddress + " " + workerPair.Key + " "+unit + " [ALLVALUES] " + string.Join(",", workerDictionary.Keys.ToArray()));
-                    _userClient.WorkerWsClient = new WorkerWsClient(workerPair.Value.IpAddress, _userClient);
+                    _userClient.WorkerWsClient = CreateWorkerClient(workerPair.Value.IpAddress, _userClient);
                     _userClient.FunctionList = workerPair.Value.Functionality;
                     _userClient.WorkerWsClient.Start();
                 }
@@ -110,13 +106,13 @@ namespace CloudMagick_Client_Gui.ServerSelection
                     {
                         LogTo.Debug("[SELECT] Server not allowed to change!");
                     }
-                    while (!_userClient.ServerMayChange)
+                    while (!_userClient.ServerMayChange & _userClient.WorkerWsClient.WebSocket.IsAlive)
                     {
                         Thread.Sleep(100);
                     }
                     _userClient.FunctionList = workerPair.Value.Functionality;
                     _userClient.WorkerWsClient.Close();
-                    _userClient.WorkerWsClient = new WorkerWsClient(workerPair.Value.IpAddress, _userClient);
+                    _userClient.WorkerWsClient = CreateWorkerClient(workerPair.Value.IpAddress, _userClient);
                     LogTo.Debug(_userClient.FunctionList.ToArray().Length.ToString);
                     _userClient.WorkerWsClient.Start();
                     LogTo.Info("[SELECT] [UPDATE] " + workerPair.Value.IpAddress + " " + workerPair.Key + " " + unit +
@@ -129,6 +125,20 @@ namespace CloudMagick_Client_Gui.ServerSelection
                 }
 
             }
+        }
+
+        public IWorkerWebSocketClient CreateWorkerClient(string ipAddress, IUserClient userClient)
+        {
+            IWorkerWebSocketClient worker = null;
+            if (userClient.GetType()==typeof(ClientConsole))
+            {
+                worker=new WorkerWsClientConsole(ipAddress,userClient);
+            }
+            else if(userClient.GetType() == typeof(ClientForm))
+            {
+                worker=new WorkerWsClientGUI(ipAddress, userClient);
+            }
+            return worker;
         }
     }
 }

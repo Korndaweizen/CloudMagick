@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
+﻿using System.Linq;
 using Anotar.Log4Net;
-using CloudMagick_MasterServer.Clients;
+using CloudMagick_WorkerServer.JSONstuff;
 using WebSocketSharp;
 using WebSocketSharp.Server;
 

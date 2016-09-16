@@ -13,24 +13,24 @@ namespace CloudMagick_WorkerServer
     {
         private ClientWorker _worker = new ClientWorker();
         private WebSocket ws;
+        private WorkerConfig _config;
 
-        private static Random random = new Random();
-
-        public WSClient(string ip, string port)
+        public WSClient(WorkerConfig config)
         {
-            string connectTo = "ws://" + ip + ":" + port + "/Worker";
+            _config = config;
+            string connectTo = "ws://" + config.MasterIPPort + "/Worker";
             ws = new WebSocket(connectTo);
         }
 
-        public void start()
+        public void Start()
         {
-            var localip = Utility.GetLocalIpAddress();
-            _worker.IpAddress = localip+":1151";
+            var localip = (_config.OwnIP=="") ? Utility.GetLocalIpAddress() : _config.OwnIP;
+            _worker.IpAddress = localip+":"+_config.OwnPort;
             _worker.Secret = Utility.RandomString(15);
-            var funclist = File.ReadAllLines("functionality.txt").ToList();
+            var funclist = _config.FunctionList;
             _worker.Functionality = funclist.Select(x => (Command)Enum.Parse(typeof(Command), x))
           .ToList();
-            LogTo.Info("IP Address {0}: {1} ", 1, localip);
+            LogTo.Info("OwnIP Address {0}: {1} ", 1, localip);
 
             ws.EmitOnPing = true;
 
@@ -69,11 +69,11 @@ namespace CloudMagick_WorkerServer
             ws.Connect();
         }
 
-        public void send(string msg)
+        public void Send(string msg)
         {
             ws.Send(msg);
         }
-        public void stop()
+        public void Stop()
         {
             ws.CloseAsync();
         }

@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using log4net.Appender;
 
-namespace CloudMagick_Client_Gui.Log4Net
+namespace CloudMagick_Client_UI.Log4Net
 {
     public class TextBoxAppender : AppenderSkeleton
     {

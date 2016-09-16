@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
+using System.Security.Cryptography;
 
-namespace CloudMagick_Client_Gui
+namespace CloudMagick_Client_UI
 {
     public class Utility
     {
@@ -23,6 +21,25 @@ namespace CloudMagick_Client_Gui
             }
             else
                 return null;
+        }
+
+        public static byte[] ImageToBytes(Image img)
+        {
+            if (img != null)
+            {
+                ImageConverter ic = new ImageConverter();
+                byte[] buffer = (byte[])ic.ConvertTo(img, typeof(byte[]));
+                return buffer;
+            }
+            else
+                return null;
+        }
+
+        public static string BytesToBas64(Byte[] bytes)
+        {
+            return Convert.ToBase64String(
+                    bytes,
+                    Base64FormattingOptions.InsertLineBreaks);
         }
         public static Image ImageFromBase64(string base46)
         {
@@ -51,7 +68,7 @@ namespace CloudMagick_Client_Gui
             // First get the host name of local machine.
             strHostName = Dns.GetHostName();
             //Console.WriteLine("Local Machine's Host Name: " + strHostName);
-            // Then using host name, get the IP address list..
+            // Then using host name, get the OwnIP address list..
             IPHostEntry ipEntry = Dns.GetHostEntry(strHostName);
             IPAddress[] addr = ipEntry.AddressList;
 

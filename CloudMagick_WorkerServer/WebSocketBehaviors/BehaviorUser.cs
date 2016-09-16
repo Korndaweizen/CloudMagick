@@ -22,6 +22,7 @@ namespace CloudMagick_WorkerServer.WebSocketBehaviors
             Program.ActiveUsers.TryGetValue(ID, out tmpuser);
             return tmpuser;
         }
+
         protected override void OnMessage(MessageEventArgs e)
         {
             var stopwatch = Stopwatch.StartNew();
@@ -48,13 +49,13 @@ namespace CloudMagick_WorkerServer.WebSocketBehaviors
                     }
                     if (command.Image != null)
                     {
-                        LogTo.Info(@"Command {0} with Image", command.cmd);
+                        LogTo.Info(@"Command {0} with Image", command.Cmd);
                         Image image = Utility.ImageFromBase64(command.Image);
                         var bmp = new Bitmap(image);
                         bmp.Save(imagepath, ImageFormat.Png);
                     }
                     int time1 = unchecked((int) stopwatch.ElapsedMilliseconds);
-                    if (command.cmd == Command.None)
+                    if (command.Cmd == Command.None)
                     {
                         execTime = time1;
                         bytes = File.ReadAllBytes(imagepath);
@@ -77,8 +78,8 @@ namespace CloudMagick_WorkerServer.WebSocketBehaviors
                         sendingTime = unchecked((int) (time4 - time3));
                     }
 
-                    LogTo.Info(@"[IMGSIZE] {0}B [COMMAND] {1} [CONVERSION] {2}ms [EXECUTION] {3}ms [SENDING] {4}ms [COMPLETE] {5}", bytes.Length, command.cmd, conversionTime, execTime, sendingTime, stopwatch.ElapsedMilliseconds);
-                    Send("TIME:" + new Result { ImgSize = bytes.Length, Cmd = command.cmd, ConversionTime = conversionTime, ExecutionTime = execTime, SendingTime = sendingTime });
+                    LogTo.Info(@"[IMGSIZE] {0}B [COMMAND] {1} [CONVERSION] {2}ms [EXECUTION] {3}ms [SENDING] {4}ms [COMPLETE] {5}", bytes.Length, command.Cmd, conversionTime, execTime, sendingTime, stopwatch.ElapsedMilliseconds);
+                    Send("TIME:" + new Result { ImgSize = bytes.Length,RequestContainedImg = (command.Image != null), Cmd = command.Cmd, ConversionTime = conversionTime, ExecutionTime = execTime, SendingTime = sendingTime });
                     stopwatch.Stop();
 
                 }

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Windows.Forms;
-using CloudMagick_Client_Gui.JSONstuff;
+using CloudMagick_WorkerServer.JSONstuff;
 
-namespace CloudMagick_Client_Gui.GUI
+namespace CloudMagick_Client_UI.UI
 {
     public class CommandButton : Button
     {
@@ -25,7 +25,7 @@ namespace CloudMagick_Client_Gui.GUI
         protected override void OnClick(EventArgs e)
         {
             base.OnClick(e);
-            var cmd = new UserCommand {cmd = Command};
+            var cmd = new UserCommand {Cmd = Command};
             _form.WorkerWsClient.Send(cmd);
         }
     }

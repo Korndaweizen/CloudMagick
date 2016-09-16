@@ -1,25 +1,17 @@
 ﻿using System;
-using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
-using System.Linq;
-using System.Net;
 using Anotar.Log4Net;
-using CloudMagick_Client_Gui.GUI;
-using CloudMagick_Client_Gui.JSONstuff;
 using WebSocketSharp;
 
-namespace CloudMagick_Client_Gui.WebSocketClients
+namespace CloudMagick_Client_UI.WebSocketClients
 {
-    public class WorkerWSBandwidthTest
+    public class WorkerWSClientBandwidthTest
     {
         public WebSocket WebSocket;
         private int _filesize;
         private int _dltime;
         public int Bandwidth => _filesize*1000/_dltime/1000;
 
-        public WorkerWSBandwidthTest(string ipport)
+        public WorkerWSClientBandwidthTest(string ipport)
         {
             WebSocket = new WebSocket("ws://" + ipport + "/BandwidthTest");
         }
@@ -57,6 +49,11 @@ namespace CloudMagick_Client_Gui.WebSocketClients
         public void Close()
         {
             WebSocket.Close();
+        }
+
+        public void Send(string msg)
+        {
+            LogTo.Debug("[BANDWIDTHTEST] Sending, this should not happen");
         }
     }
 }

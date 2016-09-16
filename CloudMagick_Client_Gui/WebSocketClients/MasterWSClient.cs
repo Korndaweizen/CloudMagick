@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using Anotar.Log4Net;
-using CloudMagick_Client_Gui.GUI;
-using CloudMagick_Client_Gui.JSONstuff;
+using CloudMagick_Client_UI.UI;
+using CloudMagick_WorkerServer.JSONstuff;
 using WebSocketSharp;
 
-namespace CloudMagick_Client_Gui.WebSocketClients
+namespace CloudMagick_Client_UI.WebSocketClients
 {
     public class MasterWsClient
     {
@@ -28,7 +25,7 @@ namespace CloudMagick_Client_Gui.WebSocketClients
             var localip = Utility.GetLocalIpAddress();
             _user.IpAddress = localip;
             _user.Secret = Utility.RandomString(15);
-            LogTo.Debug("[MASTER] Local client IP Address {0}: {1} ", 1, localip);
+            LogTo.Debug("[MASTER] Local client OwnIP Address {0}: {1} ", 1, localip);
 
             WebSocket.EmitOnPing = true;
 
@@ -45,7 +42,7 @@ namespace CloudMagick_Client_Gui.WebSocketClients
                     _clientForm.ActiveWorkers = Newtonsoft.Json.JsonConvert.DeserializeObject<List<ClientWorker>>(e.Data);
                     LogTo.Debug("[MASTER] Available workers:");
                     LogTo.Warn("[MASTER] [WORKERS] " +
-                               string.Join(",", _clientForm.ActiveWorkers.Select(worker => "IP:" + worker.IpAddress+" F:"+worker.Functionality.Count)));
+                               string.Join(",", _clientForm.ActiveWorkers.Select(worker => "OwnIP:" + worker.IpAddress+" F:"+worker.Functionality.Count)));
                     _clientForm.ServerSelector.SelectBestServerPing();
 
                     return;
@@ -77,7 +74,8 @@ namespace CloudMagick_Client_Gui.WebSocketClients
             WebSocket.Close();
         }
 
-        public void send(string msg)
+
+        public void Send(string msg)
         {
             WebSocket.Send(msg);
         }

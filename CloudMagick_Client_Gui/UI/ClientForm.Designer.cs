@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel;
 using System.Windows.Forms;
-using CloudMagick_Client_Gui.JSONstuff;
+using CloudMagick_WorkerServer.JSONstuff;
 
-namespace CloudMagick_Client_Gui.GUI
+namespace CloudMagick_Client_UI.UI
 {
     partial class ClientForm
     {
@@ -53,15 +53,15 @@ namespace CloudMagick_Client_Gui.GUI
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.undoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.redoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.commandButton1 = new CloudMagick_Client_Gui.GUI.CommandButton(Command.ReduceBrightness, this);
-            this.commandButton2 = new CloudMagick_Client_Gui.GUI.CommandButton(Command.IncreaseBrightness, this);
-            this.commandButton3 = new CloudMagick_Client_Gui.GUI.CommandButton(Command.Blur, this);
-            this.commandButton4 = new CloudMagick_Client_Gui.GUI.CommandButton(Command.Sharpen, this);
-            this.commandButton5 = new CloudMagick_Client_Gui.GUI.CommandButton(Command.Border, this);
-            this.commandButton6 = new CloudMagick_Client_Gui.GUI.CommandButton(Command.Emboss, this);
-            this.commandButton7 = new CloudMagick_Client_Gui.GUI.CommandButton(Command.Oilpaint, this);
-            this.commandButton8 = new CloudMagick_Client_Gui.GUI.CommandButton(Command.Sepia, this);
-            this.commandButton9 = new CloudMagick_Client_Gui.GUI.CommandButton(Command.Solarize, this);
+            this.commandButton1 = new CommandButton(Command.ReduceBrightness, this);
+            this.commandButton2 = new CommandButton(Command.IncreaseBrightness, this);
+            this.commandButton3 = new CommandButton(Command.Blur, this);
+            this.commandButton4 = new CommandButton(Command.Sharpen, this);
+            this.commandButton5 = new CommandButton(Command.Border, this);
+            this.commandButton6 = new CommandButton(Command.Emboss, this);
+            this.commandButton7 = new CommandButton(Command.Oilpaint, this);
+            this.commandButton8 = new CommandButton(Command.Sepia, this);
+            this.commandButton9 = new CommandButton(Command.Solarize, this);
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.flowLayoutPanel1.SuspendLayout();

@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CloudMagick_Client_Gui.JSONstuff;
-using CloudMagick_Client_Gui.ServerSelection;
-using CloudMagick_Client_Gui.WebSocketClients;
+﻿using System.Collections.Generic;
+using CloudMagick_Client_UI.ServerSelection;
+using CloudMagick_Client_UI.WebSocketClients;
+using CloudMagick_WorkerServer.JSONstuff;
 
-namespace CloudMagick_Client_Gui.GUI
+namespace CloudMagick_Client_UI.UI
 {
     public interface IUserClient
     {
@@ -17,7 +13,7 @@ namespace CloudMagick_Client_Gui.GUI
         void InitDisableCommands();
         MasterWsClient MasterWs { get; set; }
         List<ClientWorker> ActiveWorkers { get; set; }
-        WorkerWsClient WorkerWsClient { get; set; }
+        IWorkerWebSocketClient WorkerWsClient { get; set; }
         List<Command> FunctionList { get; set; }
         ServerSelector ServerSelector { get; set; }
         bool ServerMayChange { get; set; }
