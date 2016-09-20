@@ -20,6 +20,7 @@ namespace ConsoleApplication1
             test.FunctionList= new List<string> {Command.Blabla.ToString(), Command.None.ToString()};
             test.Iterations = 5;
             test.PathsList=new List<string> {"path1","path2","path3"};
+            test.Stresstest = false;
             var test2 = Newtonsoft.Json.JsonConvert.SerializeObject(test);
             File.WriteAllText("consoleconf.json",test2);
 

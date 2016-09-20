@@ -8,8 +8,8 @@ namespace CloudMagick_Client_UI.WebSocketClients
     {
         public WebSocket WebSocket;
         private int _filesize;
-        private int _dltime;
-        public int Bandwidth => _filesize*1000/_dltime/1000;
+        public int Dltime;
+        public int Bandwidth => _filesize*1000/Dltime/1000;
 
         public WorkerWSClientBandwidthTest(string ipport)
         {
@@ -18,7 +18,7 @@ namespace CloudMagick_Client_UI.WebSocketClients
 
         public void Start()
         {
-
+            Dltime = 0;
 
             WebSocket.OnMessage += (sender, e) =>
             {
@@ -26,7 +26,8 @@ namespace CloudMagick_Client_UI.WebSocketClients
                 {
                     var text = e.Data.Split(new[] { ':' }, 2);
                     _filesize = Int32.Parse(text[0]);
-                    _dltime = Int32.Parse(text[1]);
+                    Dltime = Int32.Parse(text[1]);
+                    LogTo.Debug("[BANDWIDTHTEST] " + _filesize + "B " + Dltime + "ms " + Bandwidth + "KB/s");
                     //LogTo.Info("[BANDWIDTHTEST] "+_filesize+"B "+_dltime+"ms "+Bandwidth + "B/s");
                     Close();
                 }

@@ -9,6 +9,7 @@ namespace ConsoleApplication1
     public class JSONConfig
     {
         public List<string> PathsList { get; set; }
+        public bool Stresstest { get; set; }
         public int Iterations { get; set; }
         public List<string> FunctionList { get; set; }
     }

@@ -23,7 +23,18 @@ namespace CloudMagick_Client_UI
                 var config = ReadConfig(options.Configpath);
                 ipport = (config.MasterIPPort != "") ? config.MasterIPPort : ipport;
 
-                if (options.Console || !options.Console)
+
+                config.Mode = options.Mode!="UNSET" ? options.Mode : config.Mode;
+
+                if (options.Stresstime>0)
+                {
+                    config.Stresstest = true;
+                    config.Stresstime = options.Stresstime;
+                    config.TimeBetweenRequests = options.TimeBetweenRequests;
+                    config.TimeBetweenServerProbes = options.TimeBetweenServerProbes;
+                }
+
+                if (options.Console)// || !options.Console)
                 {
                     LogTo.Debug("Console Mode");
                     var clientConsole = new ClientConsole(ipport, config);
@@ -33,7 +44,7 @@ namespace CloudMagick_Client_UI
                     LogTo.Debug("GUI Mode");
                     Application.EnableVisualStyles();
                     Application.SetCompatibleTextRenderingDefault(false);
-                    Application.Run(new ClientForm(ipport));
+                    Application.Run(new ClientForm(ipport,config));
                 }
             }
         }

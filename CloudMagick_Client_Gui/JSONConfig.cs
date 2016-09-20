@@ -14,5 +14,9 @@ namespace CloudMagick_Client_UI
         public int Iterations { get; set; }
         public List<string> FunctionList { get; set; }
         public string Mode { get; set; }
+        public bool Stresstest { get; set; } = false;
+        public int Stresstime { get; set; }
+        public int TimeBetweenRequests { get; set; }
+        public int TimeBetweenServerProbes { get; set; }
     }
 }

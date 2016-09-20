@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Threading;
@@ -12,26 +13,79 @@ namespace CloudMagick_Client_UI.ServerSelection
     public class ServerSelector
     {
         private readonly IUserClient _userClient;
-        private const int Interval = 30000;
+        private int _interval = 30000;
 
         public ServerSelector(IUserClient userClient)
         {
             _userClient = userClient;
+            if (userClient.Config.TimeBetweenServerProbes > 0)
+                _interval = userClient.Config.TimeBetweenServerProbes*1000;
         }
+
         public void DoThisAllTheTime()
         {
             while (true)
             {
-                var mode= _userClient.Mode;
-                LogTo.Debug("[SELECT] Selecting best Server with mode {0}:", mode);
-                if (mode.Equals("Latency"))
+                if (_userClient.ActiveWorkers.Count > 0)
                 {
-                    SelectBestServerPing();
-                }else if (mode.Equals("Bandwidth"))
-                {
-                    SelectBestServerBandwidth();
+                    var mode = _userClient.Mode;
+                    LogTo.Debug("[SELECT] Selecting best Server with mode {0}:", mode);
+                    if (mode.Equals("Latency"))
+                    {
+                        SelectBestServerPing();
+                    }
+                    else if (mode.Equals("Bandwidth"))
+                    {
+                        SelectBestServerBandwidth();
+                    }
+                    else if (mode.Equals("Random"))
+                    {
+                        SelectBestServerRandom();
+                    }
+                    Thread.Sleep(_interval);
                 }
-                Thread.Sleep(Interval);
+                else
+                {
+                    LogTo.Debug("[SELECT] Waiting for active worker server");
+                    Thread.Sleep(100);
+                }
+
+            }
+        }
+
+        public void SelectBestServerRandom()
+        {
+            Random rand = new Random();
+            LogTo.Debug("Active workers count: "+ _userClient.ActiveWorkers.Count);
+            var nextWorker = _userClient.ActiveWorkers.ElementAt(rand.Next(0,_userClient.ActiveWorkers.Count-1));
+            if (_userClient.WorkerWsClient == null)
+            {
+                LogTo.Info("[SELECT] [INITIAL] " + nextWorker.IpAddress + " " + "Random" + " " + "rand" + " [ALLVALUES] " + "0");
+                _userClient.WorkerWsClient = CreateWorkerClient(nextWorker.IpAddress, _userClient);
+                _userClient.FunctionList = nextWorker.Functionality;
+                _userClient.WorkerWsClient.Start();
+            }
+            else if (!_userClient.WorkerWsClient.IPport.Equals(nextWorker.IpAddress) ||
+                     !_userClient.WorkerWsClient.WebSocket.IsAlive)
+            {
+                if (!_userClient.ServerMayChange)
+                {
+                    LogTo.Debug("[SELECT] Server not allowed to change!");
+                }
+                while (!_userClient.ServerMayChange & _userClient.WorkerWsClient.WebSocket.IsAlive)
+                {
+                    Thread.Sleep(100);
+                }
+                _userClient.FunctionList = nextWorker.Functionality;
+                _userClient.WorkerWsClient.Close();
+                _userClient.WorkerWsClient = CreateWorkerClient(nextWorker.IpAddress, _userClient);
+                LogTo.Debug(_userClient.FunctionList.ToArray().Length.ToString);
+                _userClient.WorkerWsClient.Start();
+                LogTo.Info("[SELECT] [UPDATE] " + nextWorker.IpAddress + " " + "Random" + " " + "rand" + " [ALLVALUES] " + "0");
+            }
+            else
+            {
+                LogTo.Info("[SELECT] [KEEP] " + nextWorker.IpAddress + " " + "Random" + " " + "rand" + " [ALLVALUES] " + "0");
             }
         }
 
@@ -45,20 +99,25 @@ namespace CloudMagick_Client_UI.ServerSelection
 
                 var ws = new WorkerWSClientBandwidthTest(worker.IpAddress);
                 ws.Start();
-                while (ws.WebSocket.IsAlive && sleeptime<60000)
+                while (ws.Dltime==0  && sleeptime<60000)
                 {
+                    if (!ws.WebSocket.IsAlive)
+                    {
+                        ws.Start();
+                    }
                     sleeptime += sleepval;
                     Thread.Sleep(sleepval);
                     LogTo.Debug("[SELECT] Waiting for testfile");
                 }
-                if (ws.WebSocket.IsAlive)
-                {
-                    ws.Close();
-                }
-                LogTo.Debug("[SELECT] [BANDWIDTH] " + ws.Bandwidth+ " KB/s");
+
                 if (ws.Bandwidth > 0)
                 {
+                    LogTo.Debug("[SELECT] [BANDWIDTH] " + ws.Bandwidth + " KB/s");
                     workerDictionary.Add(ws.Bandwidth,worker);
+                }
+                else
+                {
+                    LogTo.Debug("[SELECT] [BANDWIDTH] " + "leqz" + " KB/s");
                 }
             }
             EvalAndChangeServer(workerDictionary);
@@ -139,6 +198,33 @@ namespace CloudMagick_Client_UI.ServerSelection
                 worker=new WorkerWsClientGUI(ipAddress, userClient);
             }
             return worker;
+        }
+
+        public void InitTestServers()
+        {
+            if (_userClient.ActiveWorkers.Count > 0)
+            {
+                var mode = _userClient.Mode;
+                LogTo.Debug("[SELECT] Selecting best Server with mode {0}:", mode);
+                if (mode.Equals("Latency"))
+                {
+                    SelectBestServerPing();
+                }
+                else if (mode.Equals("Bandwidth"))
+                {
+                    SelectBestServerBandwidth();
+                }
+                else if (mode.Equals("Random"))
+                {
+                    SelectBestServerRandom();
+                }
+                Thread.Sleep(_interval);
+            }
+            else
+            {
+                LogTo.Debug("[SELECT] Waiting for active worker server");
+                Thread.Sleep(100);
+            }
         }
     }
 }

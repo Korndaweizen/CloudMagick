@@ -53,15 +53,16 @@ namespace CloudMagick_Client_UI.UI
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.undoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.redoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.commandButton1 = new CommandButton(Command.ReduceBrightness, this);
-            this.commandButton2 = new CommandButton(Command.IncreaseBrightness, this);
-            this.commandButton3 = new CommandButton(Command.Blur, this);
-            this.commandButton4 = new CommandButton(Command.Sharpen, this);
-            this.commandButton5 = new CommandButton(Command.Border, this);
-            this.commandButton6 = new CommandButton(Command.Emboss, this);
-            this.commandButton7 = new CommandButton(Command.Oilpaint, this);
-            this.commandButton8 = new CommandButton(Command.Sepia, this);
-            this.commandButton9 = new CommandButton(Command.Solarize, this);
+            this.radioRandom = new System.Windows.Forms.RadioButton();
+            this.commandButton10 = new CloudMagick_Client_UI.UI.CommandButton(Command.IncreaseBrightness, this);
+            this.commandButton11 = new CloudMagick_Client_UI.UI.CommandButton(Command.ReduceBrightness, this);
+            this.commandButton12 = new CloudMagick_Client_UI.UI.CommandButton(Command.Blur, this);
+            this.commandButton13 = new CloudMagick_Client_UI.UI.CommandButton(Command.Sharpen, this);
+            this.commandButton14 = new CloudMagick_Client_UI.UI.CommandButton(Command.Border, this);
+            this.commandButton15 = new CloudMagick_Client_UI.UI.CommandButton(Command.Emboss, this);
+            this.commandButton16 = new CloudMagick_Client_UI.UI.CommandButton(Command.Oilpaint, this);
+            this.commandButton17 = new CloudMagick_Client_UI.UI.CommandButton(Command.Sepia, this);
+            this.commandButton18 = new CloudMagick_Client_UI.UI.CommandButton(Command.Solarize, this);
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.flowLayoutPanel1.SuspendLayout();
@@ -76,7 +77,7 @@ namespace CloudMagick_Client_UI.UI
             this.tableLayoutPanel1.ColumnCount = 3;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 13.82114F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 86.17886F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 130F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 131F));
             this.tableLayoutPanel1.Controls.Add(this.pictureBox1, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.checkBox1, 0, 1);
             this.tableLayoutPanel1.Controls.Add(this.flowLayoutPanel1, 1, 1);
@@ -100,7 +101,7 @@ namespace CloudMagick_Client_UI.UI
             this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pictureBox1.Location = new System.Drawing.Point(3, 3);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(740, 391);
+            this.pictureBox1.Size = new System.Drawing.Size(739, 391);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBox1.TabIndex = 0;
             this.pictureBox1.TabStop = false;
@@ -127,7 +128,7 @@ namespace CloudMagick_Client_UI.UI
             this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel1.Location = new System.Drawing.Point(106, 400);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(637, 31);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(636, 31);
             this.flowLayoutPanel1.TabIndex = 2;
             // 
             // selimage
@@ -176,21 +177,21 @@ namespace CloudMagick_Client_UI.UI
             // 
             // flowLayoutPanel2
             // 
-            this.flowLayoutPanel2.Controls.Add(this.commandButton1);
-            this.flowLayoutPanel2.Controls.Add(this.commandButton2);
-            this.flowLayoutPanel2.Controls.Add(this.commandButton3);
-            this.flowLayoutPanel2.Controls.Add(this.commandButton4);
-            this.flowLayoutPanel2.Controls.Add(this.commandButton5);
-            this.flowLayoutPanel2.Controls.Add(this.commandButton6);
-            this.flowLayoutPanel2.Controls.Add(this.commandButton7);
-            this.flowLayoutPanel2.Controls.Add(this.commandButton8);
-            this.flowLayoutPanel2.Controls.Add(this.commandButton9);
+            this.flowLayoutPanel2.Controls.Add(this.commandButton10);
+            this.flowLayoutPanel2.Controls.Add(this.commandButton11);
+            this.flowLayoutPanel2.Controls.Add(this.commandButton12);
+            this.flowLayoutPanel2.Controls.Add(this.commandButton13);
+            this.flowLayoutPanel2.Controls.Add(this.commandButton14);
+            this.flowLayoutPanel2.Controls.Add(this.commandButton15);
+            this.flowLayoutPanel2.Controls.Add(this.commandButton16);
+            this.flowLayoutPanel2.Controls.Add(this.commandButton17);
+            this.flowLayoutPanel2.Controls.Add(this.commandButton18);
             this.flowLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel2.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.flowLayoutPanel2.Location = new System.Drawing.Point(749, 3);
+            this.flowLayoutPanel2.Location = new System.Drawing.Point(748, 3);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
             this.tableLayoutPanel1.SetRowSpan(this.flowLayoutPanel2, 2);
-            this.flowLayoutPanel2.Size = new System.Drawing.Size(125, 428);
+            this.flowLayoutPanel2.Size = new System.Drawing.Size(126, 428);
             this.flowLayoutPanel2.TabIndex = 3;
             this.flowLayoutPanel2.WrapContents = false;
             // 
@@ -202,7 +203,7 @@ namespace CloudMagick_Client_UI.UI
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(3, 437);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(740, 149);
+            this.panel1.Size = new System.Drawing.Size(739, 149);
             this.panel1.TabIndex = 4;
             // 
             // textBox1
@@ -213,17 +214,18 @@ namespace CloudMagick_Client_UI.UI
             this.textBox1.Name = "textBox1";
             this.textBox1.ReadOnly = true;
             this.textBox1.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBox1.Size = new System.Drawing.Size(736, 145);
+            this.textBox1.Size = new System.Drawing.Size(735, 145);
             this.textBox1.TabIndex = 0;
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.radioRandom);
             this.groupBox2.Controls.Add(this.radioLatency);
             this.groupBox2.Controls.Add(this.radioBandwidth);
             this.groupBox2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox2.Location = new System.Drawing.Point(749, 437);
+            this.groupBox2.Location = new System.Drawing.Point(748, 437);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(125, 149);
+            this.groupBox2.Size = new System.Drawing.Size(126, 149);
             this.groupBox2.TabIndex = 5;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Selection Mode";
@@ -231,6 +233,7 @@ namespace CloudMagick_Client_UI.UI
             // radioLatency
             // 
             this.radioLatency.AutoSize = true;
+            this.radioLatency.Checked = true;
             this.radioLatency.Location = new System.Drawing.Point(6, 19);
             this.radioLatency.Name = "radioLatency";
             this.radioLatency.Size = new System.Drawing.Size(63, 17);
@@ -239,7 +242,6 @@ namespace CloudMagick_Client_UI.UI
             this.radioLatency.Text = "Latency";
             this.radioLatency.UseVisualStyleBackColor = true;
             this.radioLatency.CheckedChanged += new System.EventHandler(this.radioLatency_CheckedChanged);
-            this.radioLatency.Checked = true;
             // 
             // radioBandwidth
             // 
@@ -282,82 +284,88 @@ namespace CloudMagick_Client_UI.UI
             this.redoToolStripMenuItem.Text = "Redo";
             this.redoToolStripMenuItem.Click += new System.EventHandler(this.redoToolStripMenuItem_Click);
             // 
-            // commandButton1
+            // radioRandom
             // 
-            this.commandButton1.Location = new System.Drawing.Point(3, 3);
-            this.commandButton1.Name = "commandButton1";
-            this.commandButton1.Size = new System.Drawing.Size(113, 23);
-            this.commandButton1.TabIndex = 0;
-            this.commandButton1.UseVisualStyleBackColor = true;
+            this.radioRandom.AutoSize = true;
+            this.radioRandom.Location = new System.Drawing.Point(6, 65);
+            this.radioRandom.Name = "radioRandom";
+            this.radioRandom.Size = new System.Drawing.Size(65, 17);
+            this.radioRandom.TabIndex = 2;
+            this.radioRandom.TabStop = true;
+            this.radioRandom.Text = "Random";
+            this.radioRandom.UseVisualStyleBackColor = true;
             // 
-            // commandButton2
+            // commandButton10
             // 
-            this.commandButton2.Location = new System.Drawing.Point(3, 32);
-            this.commandButton2.Name = "commandButton2";
-            this.commandButton2.Size = new System.Drawing.Size(113, 23);
-            this.commandButton2.TabIndex = 1;
-            this.commandButton2.UseVisualStyleBackColor = true;
+            this.commandButton10.Location = new System.Drawing.Point(3, 3);
+            this.commandButton10.Name = "commandButton10";
+            this.commandButton10.Size = new System.Drawing.Size(110, 23);
+            this.commandButton10.TabIndex = 0;
+            this.commandButton10.UseVisualStyleBackColor = true;
             // 
-            // commandButton3
+            // commandButton11
             // 
-            this.commandButton3.Location = new System.Drawing.Point(3, 61);
-            this.commandButton3.Name = "commandButton3";
-            this.commandButton3.Size = new System.Drawing.Size(113, 23);
-            this.commandButton3.TabIndex = 2;
-            this.commandButton3.UseVisualStyleBackColor = true;
+            this.commandButton11.Location = new System.Drawing.Point(3, 32);
+            this.commandButton11.Name = "commandButton11";
+            this.commandButton11.Size = new System.Drawing.Size(110, 23);
+            this.commandButton11.TabIndex = 1;
+            this.commandButton11.UseVisualStyleBackColor = true;
             // 
-            // commandButton4
+            // commandButton12
             // 
-            this.commandButton4.Location = new System.Drawing.Point(3, 90);
-            this.commandButton4.Name = "commandButton4";
-            this.commandButton4.Size = new System.Drawing.Size(113, 23);
-            this.commandButton4.TabIndex = 3;
-            
-            this.commandButton4.UseVisualStyleBackColor = true;
+            this.commandButton12.Location = new System.Drawing.Point(3, 61);
+            this.commandButton12.Name = "commandButton12";
+            this.commandButton12.Size = new System.Drawing.Size(110, 23);
+            this.commandButton12.TabIndex = 2;
+            this.commandButton12.UseVisualStyleBackColor = true;
             // 
-            // commandButton5
+            // commandButton13
             // 
-            this.commandButton5.Location = new System.Drawing.Point(3, 119);
-            this.commandButton5.Name = "commandButton5";
-            this.commandButton5.Size = new System.Drawing.Size(113, 23);
-            this.commandButton5.TabIndex = 4;
-            
-            this.commandButton5.UseVisualStyleBackColor = true;
+            this.commandButton13.Location = new System.Drawing.Point(3, 90);
+            this.commandButton13.Name = "commandButton13";
+            this.commandButton13.Size = new System.Drawing.Size(110, 23);
+            this.commandButton13.TabIndex = 3;
+            this.commandButton13.UseVisualStyleBackColor = true;
             // 
-            // commandButton6
+            // commandButton14
             // 
-            this.commandButton6.Location = new System.Drawing.Point(3, 148);
-            this.commandButton6.Name = "commandButton6";
-            this.commandButton6.Size = new System.Drawing.Size(113, 23);
-            this.commandButton6.TabIndex = 5;
-          
-            this.commandButton6.UseVisualStyleBackColor = true;
+            this.commandButton14.Location = new System.Drawing.Point(3, 119);
+            this.commandButton14.Name = "commandButton14";
+            this.commandButton14.Size = new System.Drawing.Size(110, 23);
+            this.commandButton14.TabIndex = 4;
+            this.commandButton14.UseVisualStyleBackColor = true;
             // 
-            // commandButton7
+            // commandButton15
             // 
-            this.commandButton7.Location = new System.Drawing.Point(3, 177);
-            this.commandButton7.Name = "commandButton7";
-            this.commandButton7.Size = new System.Drawing.Size(113, 23);
-            this.commandButton7.TabIndex = 6;
-          
-            this.commandButton7.UseVisualStyleBackColor = true;
+            this.commandButton15.Location = new System.Drawing.Point(3, 148);
+            this.commandButton15.Name = "commandButton15";
+            this.commandButton15.Size = new System.Drawing.Size(110, 23);
+            this.commandButton15.TabIndex = 5;
+            this.commandButton15.UseVisualStyleBackColor = true;
             // 
-            // commandButton8
+            // commandButton16
             // 
-            this.commandButton8.Location = new System.Drawing.Point(3, 206);
-            this.commandButton8.Name = "commandButton8";
-            this.commandButton8.Size = new System.Drawing.Size(113, 23);
-            this.commandButton8.TabIndex = 7;
-     
-            this.commandButton8.UseVisualStyleBackColor = true;
+            this.commandButton16.Location = new System.Drawing.Point(3, 177);
+            this.commandButton16.Name = "commandButton16";
+            this.commandButton16.Size = new System.Drawing.Size(110, 23);
+            this.commandButton16.TabIndex = 6;
+            this.commandButton16.UseVisualStyleBackColor = true;
             // 
-            // commandButton9
+            // commandButton17
             // 
-            this.commandButton9.Location = new System.Drawing.Point(3, 235);
-            this.commandButton9.Name = "commandButton9";
-            this.commandButton9.Size = new System.Drawing.Size(113, 23);
-            this.commandButton9.TabIndex = 8;
-            this.commandButton9.UseVisualStyleBackColor = true;
+            this.commandButton17.Location = new System.Drawing.Point(3, 206);
+            this.commandButton17.Name = "commandButton17";
+            this.commandButton17.Size = new System.Drawing.Size(110, 23);
+            this.commandButton17.TabIndex = 7;
+            this.commandButton17.UseVisualStyleBackColor = true;
+            // 
+            // commandButton18
+            // 
+            this.commandButton18.Location = new System.Drawing.Point(3, 235);
+            this.commandButton18.Name = "commandButton18";
+            this.commandButton18.Size = new System.Drawing.Size(110, 23);
+            this.commandButton18.TabIndex = 8;
+            this.commandButton18.UseVisualStyleBackColor = true;
             // 
             // ClientForm
             // 
@@ -426,6 +434,16 @@ namespace CloudMagick_Client_UI.UI
         private CommandButton commandButton7;
         private CommandButton commandButton8;
         private CommandButton commandButton9;
+        private RadioButton radioRandom;
+        private CommandButton commandButton10;
+        private CommandButton commandButton11;
+        private CommandButton commandButton12;
+        private CommandButton commandButton13;
+        private CommandButton commandButton14;
+        private CommandButton commandButton15;
+        private CommandButton commandButton16;
+        private CommandButton commandButton17;
+        private CommandButton commandButton18;
     }
 }
 

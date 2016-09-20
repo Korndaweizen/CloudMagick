@@ -18,6 +18,6 @@ namespace CloudMagick_Client_UI.UI
         ServerSelector ServerSelector { get; set; }
         bool ServerMayChange { get; set; }
         string Mode { get; set; }
-
+        JSONConfig Config { get; set; }
     }
 }

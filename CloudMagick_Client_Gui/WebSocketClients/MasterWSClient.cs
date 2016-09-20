@@ -43,7 +43,7 @@ namespace CloudMagick_Client_UI.WebSocketClients
                     LogTo.Debug("[MASTER] Available workers:");
                     LogTo.Warn("[MASTER] [WORKERS] " +
                                string.Join(",", _clientForm.ActiveWorkers.Select(worker => "OwnIP:" + worker.IpAddress+" F:"+worker.Functionality.Count)));
-                    _clientForm.ServerSelector.SelectBestServerPing();
+                    //_clientForm.ServerSelector.InitTestServers();
 
                     return;
                 }

@@ -77,10 +77,10 @@ namespace CloudMagick_WorkerServer.JSONstuff
                 proc.StartInfo.FileName = "mogrify";
                 proc.StartInfo.Arguments = cmd + " " + path;
             }
-            //proc.StartInfo.UseShellExecute = false;
-            //proc.StartInfo.RedirectStandardError = true;
-            //proc.StartInfo.RedirectStandardInput = true;
-            //proc.StartInfo.RedirectStandardOutput = true;
+            proc.StartInfo.UseShellExecute = false;
+            proc.StartInfo.RedirectStandardError = true;
+            proc.StartInfo.RedirectStandardInput = true;
+            proc.StartInfo.RedirectStandardOutput = true;
             proc.Start();
             proc.WaitForExit();
             //var output = proc.StandardOutput.ReadToEnd();

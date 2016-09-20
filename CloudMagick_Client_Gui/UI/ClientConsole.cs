@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -27,16 +28,21 @@ namespace CloudMagick_Client_UI.UI
         public RedoUndo RedoUndo;
         private Thread _serverSelectionThread;
         private bool _allowedToSendCommand;
-        private JSONConfig _config;
+        public JSONConfig Config { get; set; }
 
         public ClientConsole(string ipport, JSONConfig config)
         {
-            _config = config;
-            Mode = _config.Mode;
+            Config = config;
+            Mode = Config.Mode;
             Init(ipport);
-
-            DoTesting();
-            
+            if (Config.Stresstest)
+            {
+                Stresstest();
+            }
+            else
+            {
+                DoTesting();
+            }
             Thread.Sleep(20000);
             
             End();
@@ -65,7 +71,7 @@ namespace CloudMagick_Client_UI.UI
         }
         private void DoTesting()
         {
-            foreach (var path in _config.PathsList)
+            foreach (var path in Config.PathsList)
             {
                 if (Directory.Exists(path))
                 {
@@ -84,14 +90,68 @@ namespace CloudMagick_Client_UI.UI
             return;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        private void Stresstest()
+        {
+            var path = Config.PathsList.First();
+            if (Directory.Exists(path))
+            {
+                var file = Directory.GetFiles(path).First();
+
+                Image img = Image.FromFile(file);
+                UserCommand userCmd = new UserCommand();
+                var funclist = Config.FunctionList.Select(x => (Command)Enum.Parse(typeof(Command), x)).ToList();
+                var function = funclist.First();
+
+                Stopwatch watch = new Stopwatch();
+                watch.Start();
+                while (watch.ElapsedMilliseconds/1000 < Config.Stresstime)
+                {
+                    if (ActiveWorkers.Count>0 && Mode=="Random")
+                    {
+                        ServerSelector.SelectBestServerRandom();
+                    }
+                    RedoUndo.AddImage(img);
+
+                    userCmd.Image = Utility.ImageToBase64(img);
+                    userCmd.Cmd = Command.None;
+                    while (!_allowedToSendCommand)
+                    {
+                        Thread.Sleep(100);
+                    }
+                    WorkerWsClient.Send(userCmd);
+
+                    userCmd.Image = null;
+                    userCmd.Cmd = function;
+                    while (!_allowedToSendCommand)
+                    {
+                        Thread.Sleep(100);
+                    }
+                    WorkerWsClient.Send(userCmd);
+
+                    Thread.Sleep(Config.TimeBetweenRequests*1000);
+
+                }
+                watch.Stop();
+                LogTo.Debug("Stresstest lastet " + watch.ElapsedMilliseconds/1000 +"s");
+            }
+            else
+            {
+                LogTo.Debug("Directory " + path + " does not exist");
+            }
+            return;
+        }
+
         private void ProcessFile(string file)
         {
             Image img = Image.FromFile(file);
             UserCommand userCmd = new UserCommand();
-            var funclist = _config.FunctionList.Select(x => (Command)Enum.Parse(typeof(Command), x)).ToList();
+            var funclist = Config.FunctionList.Select(x => (Command)Enum.Parse(typeof(Command), x)).ToList();
             foreach (var function in funclist)
             {
-                for (int i = 0; i < _config.Iterations; i++)
+                for (int i = 0; i < Config.Iterations; i++)
                 {
                     RedoUndo.AddImage(img);
 

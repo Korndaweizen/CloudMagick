@@ -24,10 +24,12 @@ namespace CloudMagick_Client_UI.UI
 
         public IWorkerWebSocketClient WorkerWsClient { get; set; }
         public List<Command> FunctionList { get; set; } = new List<Command>();
+        public JSONConfig Config { get; set; }
 
 
-        public ClientForm(string ipport)
+        public ClientForm(string ipport, JSONConfig config)
         {
+            Config = config;
             ServerSelector = new ServerSelector(this);
 
             MasterWs = new MasterWsClient(ipport,this);
