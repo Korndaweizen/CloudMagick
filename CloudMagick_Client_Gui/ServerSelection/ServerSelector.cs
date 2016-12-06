@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Threading;
+using System.Threading.Tasks;
 using Anotar.Log4Net;
 using CloudMagick_Client_UI.UI;
 using CloudMagick_Client_UI.WebSocketClients;
@@ -91,15 +92,15 @@ namespace CloudMagick_Client_UI.ServerSelection
 
         public void SelectBestServerBandwidth()
         {
-            Dictionary<long, ClientWorker> workerDictionary = new Dictionary<long, ClientWorker>();
-            foreach (var worker in _userClient.ActiveWorkers)
+            Dictionary<ClientWorker,long> workerDictionary = new Dictionary<ClientWorker,long>();
+            Parallel.ForEach(_userClient.ActiveWorkers, worker =>
             {
                 int sleeptime = 0;
                 int sleepval = 100;
 
                 var ws = new WorkerWSClientBandwidthTest(worker.IpAddress);
                 ws.Start();
-                while (ws.Dltime==0  && sleeptime<60000)
+                while (ws.Dltime == 0 && sleeptime < 60000)
                 {
                     if (!ws.WebSocket.IsAlive)
                     {
@@ -113,19 +114,19 @@ namespace CloudMagick_Client_UI.ServerSelection
                 if (ws.Bandwidth > 0)
                 {
                     LogTo.Debug("[SELECT] [BANDWIDTH] " + ws.Bandwidth + " KB/s");
-                    workerDictionary.Add(ws.Bandwidth,worker);
+                    workerDictionary.Add(worker,ws.Bandwidth);
                 }
                 else
                 {
                     LogTo.Debug("[SELECT] [BANDWIDTH] " + "leqz" + " KB/s");
                 }
-            }
+            });
             EvalAndChangeServer(workerDictionary);
         }
 
         public void SelectBestServerPing()
         {
-            Dictionary<long, ClientWorker> workerDictionary = new Dictionary<long, ClientWorker>();
+            Dictionary<ClientWorker,long> workerDictionary = new Dictionary<ClientWorker,long>();
             foreach (var worker in _userClient.ActiveWorkers)
             {
                 Ping sender = new Ping();
@@ -135,7 +136,7 @@ namespace CloudMagick_Client_UI.ServerSelection
                 {
                     //LogTo.Info("[SELECT] OwnIP "+worker.IpAddress+" " + result.RoundtripTime + "ms");
                     //Console.WriteLine("Success, Time Succeeded: " + result.RoundtripTime + "ms");
-                    workerDictionary.Add(result.RoundtripTime, worker);
+                    workerDictionary.Add(worker,result.RoundtripTime);
                 }
 
                 else
@@ -144,21 +145,25 @@ namespace CloudMagick_Client_UI.ServerSelection
             EvalAndChangeServer(workerDictionary);
         }
 
-        public void EvalAndChangeServer(Dictionary<long, ClientWorker> workerDictionary)
+        public void EvalAndChangeServer(Dictionary<ClientWorker,long> workerDictionary)
         {
             if (workerDictionary.Count > 0)
             {
-                var test = workerDictionary.OrderBy(pair => pair.Key);
+                var test = workerDictionary.OrderBy(pair => pair.Value);
                 var workerPair = test.First();
+                if (_userClient.Mode=="Bandwidth")
+                {
+                    workerPair = test.Last();
+                }
                 var unit = (_userClient.Mode == "Latency") ? "ms" : "KB/s";
                 if (_userClient.WorkerWsClient == null)
                 {
-                    LogTo.Info("[SELECT] [INITIAL] " + workerPair.Value.IpAddress + " " + workerPair.Key + " "+unit + " [ALLVALUES] " + string.Join(",", workerDictionary.Keys.ToArray()));
-                    _userClient.WorkerWsClient = CreateWorkerClient(workerPair.Value.IpAddress, _userClient);
-                    _userClient.FunctionList = workerPair.Value.Functionality;
+                    LogTo.Info("[SELECT] [INITIAL] " + workerPair.Key.IpAddress + " " + workerPair.Value + " "+unit + " [ALLVALUES] " + string.Join(",", workerDictionary.Values.ToArray()));
+                    _userClient.WorkerWsClient = CreateWorkerClient(workerPair.Key.IpAddress, _userClient);
+                    _userClient.FunctionList = workerPair.Key.Functionality;
                     _userClient.WorkerWsClient.Start();
                 }
-                else if (!_userClient.WorkerWsClient.IPport.Equals(workerPair.Value.IpAddress) ||
+                else if (!_userClient.WorkerWsClient.IPport.Equals(workerPair.Key.IpAddress) ||
                          !_userClient.WorkerWsClient.WebSocket.IsAlive)
                 {
                     if (!_userClient.ServerMayChange)
@@ -169,18 +174,18 @@ namespace CloudMagick_Client_UI.ServerSelection
                     {
                         Thread.Sleep(100);
                     }
-                    _userClient.FunctionList = workerPair.Value.Functionality;
+                    _userClient.FunctionList = workerPair.Key.Functionality;
                     _userClient.WorkerWsClient.Close();
-                    _userClient.WorkerWsClient = CreateWorkerClient(workerPair.Value.IpAddress, _userClient);
+                    _userClient.WorkerWsClient = CreateWorkerClient(workerPair.Key.IpAddress, _userClient);
                     LogTo.Debug(_userClient.FunctionList.ToArray().Length.ToString);
                     _userClient.WorkerWsClient.Start();
-                    LogTo.Info("[SELECT] [UPDATE] " + workerPair.Value.IpAddress + " " + workerPair.Key + " " + unit +
-                               " [ALLVALUES] " + string.Join(",", workerDictionary.Keys.ToArray()));
+                    LogTo.Info("[SELECT] [UPDATE] " + workerPair.Key.IpAddress + " " + workerPair.Value + " " + unit +
+                               " [ALLVALUES] " + string.Join(",", workerDictionary.Values.ToArray()));
                 }
                 else
                 {
-                    LogTo.Info("[SELECT] [KEEP] " + workerPair.Value.IpAddress + " " + workerPair.Key + " " + unit +
-                               " [ALLVALUES] " + string.Join(",", workerDictionary.Keys.ToArray()));
+                    LogTo.Info("[SELECT] [KEEP] " + workerPair.Key.IpAddress + " " + workerPair.Value + " " + unit +
+                               " [ALLVALUES] " + string.Join(",", workerDictionary.Values.ToArray()));
                 }
 
             }

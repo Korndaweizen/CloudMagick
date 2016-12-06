@@ -12,7 +12,7 @@ namespace CloudMagick_WorkerServer
     class WSClient
     {
         private ClientWorker _worker = new ClientWorker();
-        private WebSocket ws;
+        public WebSocket ws;
         private WorkerConfig _config;
 
         public WSClient(WorkerConfig config)

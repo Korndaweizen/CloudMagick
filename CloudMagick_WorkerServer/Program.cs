@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.IO;
+using System.Threading;
 using Anotar.Log4Net;
 using CloudMagick_WorkerServer.JSONstuff;
 using CloudMagick_WorkerServer.WebSocketBehaviors;
@@ -28,15 +29,20 @@ namespace CloudMagick_WorkerServer
                 WSClient client = new WSClient(config);
                 client.Start();
 
-                Console.ReadLine();
+                while (true)
+                {
+                    if (!client.ws.IsAlive)
+                    {
+                        client.Start();
+                    }
+
+                    Thread.Sleep(1000);
+                }
                 wssv.Stop();
                 client.Send("Bye");
                 client.Stop();
             }
-            else
-            {
-                LogTo.Debug("Error");
-            }
+            LogTo.Debug("Error");
         }
     }
 }

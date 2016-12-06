@@ -107,12 +107,9 @@ namespace CloudMagick_Client_UI.UI
 
                 Stopwatch watch = new Stopwatch();
                 watch.Start();
+
                 while (watch.ElapsedMilliseconds/1000 < Config.Stresstime)
                 {
-                    if (ActiveWorkers.Count>0 && Mode=="Random")
-                    {
-                        ServerSelector.SelectBestServerRandom();
-                    }
                     RedoUndo.AddImage(img);
 
                     userCmd.Image = Utility.ImageToBase64(img);
@@ -123,15 +120,22 @@ namespace CloudMagick_Client_UI.UI
                     }
                     WorkerWsClient.Send(userCmd);
 
+                    if (ActiveWorkers.Count > 0 && Mode == "Random")
+                    {
+                        ServerSelector.SelectBestServerRandom();
+                    }
+
                     userCmd.Image = null;
                     userCmd.Cmd = function;
-                    while (!_allowedToSendCommand)
+                    long sleeper = 0;
+                    while (!_allowedToSendCommand || sleeper < Config.TimeBetweenRequests * 1000)
                     {
                         Thread.Sleep(100);
+                        sleeper += 100;
                     }
                     WorkerWsClient.Send(userCmd);
 
-                    Thread.Sleep(Config.TimeBetweenRequests*1000);
+                    //Thread.Sleep(Config.TimeBetweenRequests*1000);
 
                 }
                 watch.Stop();
